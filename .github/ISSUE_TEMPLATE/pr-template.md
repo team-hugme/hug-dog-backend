@@ -1,12 +1,3 @@
----
-name: PR template
-about: pull request content
-title: "[PR] "
-labels: bug, documentation
-assignees: Pracrobo, syongsyong6035
-
----
-
 ## 기능 제목
 ex) 로그인 - 비밀번호
 
