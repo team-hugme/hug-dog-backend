@@ -1,4 +1,4 @@
-package src.main.java.spring.hugme.infra.util;
+package spring.hugme.infra.util;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
