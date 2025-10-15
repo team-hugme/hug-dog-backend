@@ -42,9 +42,6 @@ class JwtAuthIntegrationTest {
     private static final String TEST_USERID = "testUser";
     private static final String TEST_PASSWORD = "password123";
 
-    // -------------------------------
-    // 테스트 데이터 초기화
-    // -------------------------------
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
@@ -53,7 +50,6 @@ class JwtAuthIntegrationTest {
         testUser = Member.builder()
             .userId(TEST_USERID)
             .password(passwordEncoder.encode(TEST_PASSWORD))
-            .email(TEST_USERID + "@example.com")
             .name("테스트유저")
             .birthday(LocalDate.of(2000, 1, 1))
             .phone("010-1234-5678")
@@ -78,9 +74,6 @@ class JwtAuthIntegrationTest {
         }
     }
 
-    // -------------------------------
-    // 로그인 테스트
-    // -------------------------------
     @Test
     @DisplayName("로그인 성공 - JWT 토큰 발급")
     void testLoginSuccess() {
@@ -100,9 +93,6 @@ class JwtAuthIntegrationTest {
             .isThrownBy(() -> authService.login(TEST_USERID, "wrongPassword"));
     }
 
-    // -------------------------------
-    // Access / Refresh Token 검증
-    // -------------------------------
     @Test
     @DisplayName("Access Token 검증 성공")
     void testValidateAccessToken() {
@@ -147,9 +137,6 @@ class JwtAuthIntegrationTest {
         assertThat(userId).isEqualTo(TEST_USERID);
     }
 
-    // -------------------------------
-    // 로그아웃 테스트
-    // -------------------------------
     @Test
     @DisplayName("로그아웃 성공 - Refresh Token 삭제")
     void testLogoutSuccess() {

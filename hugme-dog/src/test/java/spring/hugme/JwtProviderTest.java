@@ -27,7 +27,6 @@ class JwtProviderTest {
 
     @BeforeEach
     void setUp() {
-        // JWT Key 생성 및 저장
         jwtProvider.generateAndStoreKey(testUserId);
     }
 

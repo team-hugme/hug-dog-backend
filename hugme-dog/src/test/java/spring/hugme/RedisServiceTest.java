@@ -55,7 +55,7 @@ class RedisServiceTest {
         // when
         String tokenFromRedis = redisService.getRefreshToken("anotherUserId");
 
-        // thenå
+        // then
         assertThat(tokenFromRedis).isNull();
     }
 }
