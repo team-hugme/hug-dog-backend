@@ -61,9 +61,6 @@ public class UserEntity {
     // ========================
     // 비밀번호 암호화 관련
     // ========================
-    public void encodePassword(org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
-        this.password = passwordEncoder.encode(this.password);
-    }
 
     public boolean checkPassword(org.springframework.security.crypto.password.PasswordEncoder passwordEncoder, String rawPassword) {
         return passwordEncoder.matches(rawPassword, this.password);
