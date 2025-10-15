@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -24,18 +25,18 @@ public class SecurityConfig {
         log.info("SecurityFilterChain 설정 시작");
 
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
                     log.info("URL 권한 설정");
                     auth
-                            // ✅ 페이지 경로는 모두 허용 (JavaScript에서 토큰 검증)
+                            // 페이지 경로는 모두 허용 (JavaScript에서 토큰 검증)
                             .requestMatchers(
                                     "/",
                                     "/v1/auth/login",
                                     "/v1/auth/signup",
-                                    "/v1/auth/main",      // ✅ 추가!
+                                    "/v1/auth/main",
                                     "/css/**",
                                     "/js/**",
                                     "/images/**"

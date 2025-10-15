@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
@@ -16,7 +17,7 @@ public class RedisConfig {
     private String host;
 
     @Value("${spring.data.redis.port}")
-    private  int port;
+    private int port;
 
     @Value("${spring.data.redis.password:}")
     private String password;
@@ -31,9 +32,16 @@ public class RedisConfig {
             config.setPassword(RedisPassword.of(password));
         }
 
-        LettuceConnectionFactory factory = new LettuceConnectionFactory(config);
-        factory.setUseSsl(sslEnabled);
-        return factory;
+        LettuceClientConfiguration clientConfig;
+        if (sslEnabled) {
+            clientConfig = LettuceClientConfiguration.builder()
+                .useSsl()
+                .build();
+        } else {
+            clientConfig = LettuceClientConfiguration.defaultConfiguration();
+        }
+
+        return new LettuceConnectionFactory(config, clientConfig);
     }
 
     @Bean
@@ -41,4 +49,3 @@ public class RedisConfig {
         return new StringRedisTemplate(redisConnectionFactory);
     }
 }
-
