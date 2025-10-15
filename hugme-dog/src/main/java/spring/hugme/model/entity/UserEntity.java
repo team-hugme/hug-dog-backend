@@ -6,8 +6,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Builder
@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "user")
+@Table(name = "member")
 public class UserEntity {
 
     @Id
@@ -52,11 +52,11 @@ public class UserEntity {
 
     @CreatedDate
     @Column(name = "create_at", updatable = false)
-    private Timestamp createAt;
+    private LocalDateTime createAt;
 
     @LastModifiedDate
     @Column(name = "update_at")
-    private Timestamp updateAt;
+    private LocalDateTime updateAt;
 
     // ========================
     // 비밀번호 암호화 관련
@@ -67,20 +67,5 @@ public class UserEntity {
 
     public boolean checkPassword(org.springframework.security.crypto.password.PasswordEncoder passwordEncoder, String rawPassword) {
         return passwordEncoder.matches(rawPassword, this.password);
-    }
-
-    // ========================
-    // 생성/수정 시간 자동 적용
-    // ========================
-    @PrePersist
-    protected void onCreate() {
-        this.createAt = new Timestamp(System.currentTimeMillis());
-        this.updateAt = this.createAt;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-
-        this.updateAt = new Timestamp(System.currentTimeMillis());
     }
 }
