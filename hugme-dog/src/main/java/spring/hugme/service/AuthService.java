@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import spring.hugme.infra.error.exceptions.AuthApiException;
 import spring.hugme.infra.response.ResponseCode;
 import spring.hugme.model.dto.LoginResponse;
-import spring.hugme.model.dto.UserRequestDto;
+import spring.hugme.model.dto.UserRequestDto.SignUp;
 import spring.hugme.model.entity.UserEntity;
 import spring.hugme.repository.UserRepository;
 import spring.hugme.security.id.Snowflake;
@@ -25,7 +25,7 @@ public class AuthService {
     private final Snowflake snowflake;
 
     // 회원가입
-    public Map<String, String> signup(UserRequestDto.SignUp dto) {
+    public Map<String, String> signup(SignUp dto) {
         if (userRepository.existsByUserId(dto.getUserId()))
             throw new AuthApiException(ResponseCode.CONFLICT_EXIST_USER);
 

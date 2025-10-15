@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -31,18 +32,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // 인증이 필요없는 경로들 (HTML 페이지 + 정적 리소스)
     private static final List<String> EXCLUDE_URLS = Arrays.asList(
-            "/v1/auth/login",
-            "/v1/auth/signup",
-            "/v1/auth/main",
-            "/css/",
-            "/js/",
-            "/images/"
+        "/v1/auth/login",
+        "/v1/auth/signup",
+        "/v1/auth/main",
+        "/css/",
+        "/js/",
+        "/images/"
     );
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response,
+        @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         String requestURI = request.getRequestURI();
         log.info("JWT Filter 처리: {} {}", request.getMethod(), requestURI);
@@ -67,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // SecurityContext에 인증 정보 설정
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userId, null, null);
+                    new UsernamePasswordAuthenticationToken(userId, null, null);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -78,19 +79,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 if (ex.getCode() == ResponseCode.TOKEN_EXPIRED) {
                     log.info("Access Token 만료");
-                    sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED,
-                            ResponseCode.TOKEN_EXPIRED, "Access Token이 만료되었습니다.");
-                    return;
+                    sendErrorResponse(response, ResponseCode.TOKEN_EXPIRED, "Access Token이 만료되었습니다.");
                 } else {
                     log.error("유효하지 않은 토큰");
-                    sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED,
-                            ResponseCode.INVALID_TOKEN, "유효하지 않은 토큰입니다.");
-                    return;
+                    sendErrorResponse(response, ResponseCode.INVALID_TOKEN, "유효하지 않은 토큰입니다.");
                 }
+                return;
             } catch (Exception ex) {
                 log.error("토큰 처리 중 예외 발생", ex);
-                sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED,
-                        ResponseCode.INVALID_TOKEN, "토큰 처리 중 오류가 발생했습니다.");
+                sendErrorResponse(response, ResponseCode.INVALID_TOKEN, "토큰 처리 중 오류가 발생했습니다.");
                 return;
             }
         } else {
@@ -107,9 +104,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     // 에러 응답 전송
-    private void sendErrorResponse(HttpServletResponse response, int status,
-                                   ResponseCode code, String message) throws IOException {
-        response.setStatus(status);
+    private void sendErrorResponse(HttpServletResponse response,
+        ResponseCode code,
+        String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
