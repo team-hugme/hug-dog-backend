@@ -1,13 +1,17 @@
-package src.main.java.spring.hugme.infra.error.exceptions;
+package spring.hugme.infra.error.exceptions;
 
-import com.honlife.core.infra.response.ResponseCode;
+import spring.hugme.infra.response.ResponseCode;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class AuthApiException extends CommonException{
+public class AuthApiException extends CommonException {
+
+    // ResponseCode만 있는 경우
     public AuthApiException(ResponseCode code) {
         super(code);
     }
+
+    // ResponseCode + 원인 예외
     public AuthApiException(ResponseCode code, Exception e) {
         super(code, e);
         log.error(e.getMessage(), e);
