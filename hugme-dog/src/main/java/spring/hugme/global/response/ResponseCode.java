@@ -1,5 +1,3 @@
-package spring.hugme.global.response;
-
 import org.springframework.http.HttpStatus;
 
 public enum ResponseCode {
