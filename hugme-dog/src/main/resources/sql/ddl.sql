@@ -1,0 +1,15 @@
+CREATE TABLE member (
+    id BINARY(16) NOT NULL,
+    user_id VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    profile_url VARCHAR(500),
+    name VARCHAR(255) NOT NULL,
+    birthday DATE,
+    phone VARCHAR(100),
+    active BIT(1) DEFAULT b'1',
+    reason_withdraw VARCHAR(300),
+    create_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6),
+    update_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

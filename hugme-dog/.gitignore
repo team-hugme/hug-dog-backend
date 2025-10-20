@@ -1,7 +1,5 @@
 HELP.md
-
 .env
-
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
@@ -26,8 +24,11 @@ bin/
 *.iml
 *.ipr
 out/
+*.xml
 !**/src/main/**/out/
 !**/src/test/**/out/
+.idea/
+.idea/workspace.xml
 
 ### NetBeans ###
 /nbproject/private/
@@ -38,3 +39,31 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# 빌드 결과물
+target/
+*.class
+*.jar
+*.war
+
+# 로그
+*.log
+
+# 환경 설정 (민감정보)
+# 로컬 환경 설정 파일
+src/main/resources/application-local.properties
+src/main/resources/application-local.yml
+
+# 민감 정보가 포함된 프로파일
+**/application-local.*
+**/application-secret.*
+**/application-prod.properties
+application-local.*
+application-secret.*
+application-prod.properties
+# 기타
+local.properties
+
+# 민감 정보
+*-secret.properties
+*-secret.yml
