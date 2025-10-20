@@ -1,4 +1,4 @@
-package spring.hugme.infra.filter;
+package spring.hugme.infra.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -13,10 +13,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import spring.hugme.infra.error.exceptions.AuthApiException;
-import spring.hugme.infra.response.CommonApiResponse;
-import spring.hugme.infra.response.ResponseCode;
-import spring.hugme.security.jwt.JwtProvider;
+import spring.hugme.global.error.exceptions.AuthApiException;
+import spring.hugme.global.response.CommonApiResponse;
+import spring.hugme.global.response.ResponseCode;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -63,7 +62,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.info("Access Token 추출 완료");
 
             try {
-                Long userId = jwtProvider.validateToken(accessToken);
+                String userId = jwtProvider.validateToken(accessToken);
                 log.info("토큰 검증 성공 - UserId: {}", userId);
 
                 // SecurityContext에 인증 정보 설정

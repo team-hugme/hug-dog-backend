@@ -1,4 +1,4 @@
-package spring.hugme.security.jwt;
+package spring.hugme.infra.jwt;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,8 +9,8 @@ import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import spring.hugme.infra.error.exceptions.AuthApiException;
-import spring.hugme.infra.response.ResponseCode;
+import spring.hugme.global.error.exceptions.AuthApiException;
+import spring.hugme.global.response.ResponseCode;
 
 import javax.crypto.SecretKey;
 import java.time.Duration;
@@ -29,33 +29,37 @@ public class JwtProvider {
     private static final Duration ACCESS_EXPIRE = Duration.ofMinutes(15);
     private static final Duration REFRESH_EXPIRE = Duration.ofDays(7);
 
-    public void generateAndStoreKey(Long userId) {
+    /**  1. 사용자별 서명 키를 생성하고 Redis에 저장 */
+    public void generateAndStoreKey(String userId) {
         SecretKey key = Jwts.SIG.HS256.key().build();
-        redisTemplate.opsForValue().set("JWT_KEY:" + userId, Encoders.BASE64.encode(key.getEncoded()));
+        redisTemplate.opsForValue()
+            .set("JWT_KEY:" + userId, Encoders.BASE64.encode(key.getEncoded()));
     }
 
-    private SecretKey getKey(Long userId) {
+    /**  2. Redis에서 해당 사용자의 서명 키 조회 */
+    private SecretKey getKey(String userId) {
         String base64Key = redisTemplate.opsForValue().get("JWT_KEY:" + userId);
         if (base64Key == null) throw new AuthApiException(ResponseCode.INVALID_TOKEN);
         byte[] decoded = Decoders.BASE64.decode(base64Key);
         return Keys.hmacShaKeyFor(decoded);
     }
 
-    public String generateAccessToken(Long userId) {
+    /**  3. AccessToken / RefreshToken 생성 */
+    public String generateAccessToken(String userId) {
         return generateToken(userId, ACCESS_EXPIRE);
     }
 
-    public String generateRefreshToken(Long userId) {
+    public String generateRefreshToken(String userId) {
         return generateToken(userId, REFRESH_EXPIRE);
     }
 
-    private String generateToken(Long userId, Duration expireDuration) {
+    private String generateToken(String userId, Duration expireDuration) {
         SecretKey key = getKey(userId);
         Instant now = Instant.now();
         Instant expiry = now.plus(expireDuration);
 
         return Jwts.builder()
-            .subject(String.valueOf(userId))
+            .subject(userId)
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiry))
             .id(UUID.randomUUID().toString())
@@ -63,17 +67,16 @@ public class JwtProvider {
             .compact();
     }
 
-    // userId를 알고 있을 때 사용 (RefreshToken 검증)
-    public Long validateToken(Long userId, String token) {
+    /**  4. userId를 알고 있을 때 (RefreshToken 검증용) */
+    public String validateToken(String userId, String token) {
         try {
             SecretKey key = getKey(userId);
-            String userIdStr = Jwts.parser()
+            return Jwts.parser()
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
-            return Long.parseLong(userIdStr);
         } catch (ExpiredJwtException e) {
             throw new AuthApiException(ResponseCode.TOKEN_EXPIRED);
         } catch (JwtException e) {
@@ -81,13 +84,13 @@ public class JwtProvider {
         }
     }
 
-    // userId를 모를 때 사용 (AccessToken 검증 - Filter 등에서)
-    public Long validateToken(String token) throws AuthApiException {
+    /**  5. userId를 모를 때 (AccessToken 검증용 - 필터 등) */
+    public String validateToken(String token) {
         try {
-            // 1. JWT Payload에서 userId 추출 (서명 검증 전)
-            Long userId = extractUserIdFromToken(token);
+            //  토큰에서 userId 추출
+            String userId = extractUserIdFromToken(token);
 
-            // 2. userId로 키를 가져와서 실제 서명 검증
+            // userId 기반으로 키 가져와 검증
             SecretKey key = getKey(userId);
             Jwts.parser()
                 .verifyWith(key)
@@ -102,23 +105,19 @@ public class JwtProvider {
         }
     }
 
-    // JWT Payload에서 userId 추출 (서명 검증 없이)
-    private Long extractUserIdFromToken(String token) {
+    /**  6. JWT Payload에서 userId(subject) 추출 (서명 검증 없이) */
+    private String extractUserIdFromToken(String token) {
         try {
             String[] parts = token.split("\\.");
             if (parts.length != 3) {
                 throw new AuthApiException(ResponseCode.INVALID_TOKEN);
             }
 
-            // Payload 부분 디코딩
             byte[] decodedBytes = Base64.getUrlDecoder().decode(parts[1]);
             String payload = new String(decodedBytes);
 
-            // JSON에서 sub(userId) 추출
             JsonNode node = objectMapper.readTree(payload);
-            String userId = node.get("sub").asText();
-
-            return Long.parseLong(userId);
+            return node.get("sub").asText();
         } catch (Exception e) {
             throw new AuthApiException(ResponseCode.INVALID_TOKEN);
         }
