@@ -1,8 +1,5 @@
 package spring.hugme;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import spring.hugme.global.error.exceptions.AuthApiException;
 import spring.hugme.infra.jwt.JwtProvider;
 import spring.hugme.infra.redis.RedisService;
+
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @DisplayName("JWT Provider 테스트")
@@ -65,7 +64,7 @@ class JwtProviderTest {
         String token = jwtProvider.generateAccessToken(testUserId);
 
         // when
-        String extractedUserId = jwtProvider.validateAccessToken(token);
+        String extractedUserId = jwtProvider.validateToken(token);
 
         // then
         assertThat(extractedUserId).isEqualTo(testUserId);
@@ -78,7 +77,7 @@ class JwtProviderTest {
         String token = jwtProvider.generateAccessToken(testUserId);
 
         // when
-        String extractedUserId = jwtProvider.validateRefreshToken(testUserId, token);
+        String extractedUserId = jwtProvider.validateToken(testUserId, token);
 
         // then
         assertThat(extractedUserId).isEqualTo(testUserId);
@@ -91,7 +90,7 @@ class JwtProviderTest {
         String invalidToken = "invalid.jwt.token";
 
         // when & then
-        assertThatThrownBy(() -> jwtProvider.validateAccessToken(invalidToken))
+        assertThatThrownBy(() -> jwtProvider.validateToken(invalidToken))
                 .isInstanceOf(AuthApiException.class);
     }
 
@@ -104,7 +103,7 @@ class JwtProviderTest {
         String token = jwtProvider.generateAccessToken(testUserId);
 
         // when & then
-        assertThatThrownBy(() -> jwtProvider.validateRefreshToken(anotherUserId, token))
+        assertThatThrownBy(() -> jwtProvider.validateToken(anotherUserId, token))
                 .isInstanceOf(AuthApiException.class);
     }
 }

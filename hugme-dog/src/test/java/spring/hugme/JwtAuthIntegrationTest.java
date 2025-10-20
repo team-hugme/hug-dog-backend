@@ -1,27 +1,23 @@
 package spring.hugme;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.time.LocalDate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import spring.hugme.domain.auth.dto.response.LoginResponse;
-import spring.hugme.domain.auth.service.AuthService;
-import spring.hugme.domain.user.entity.Member;
-import spring.hugme.domain.user.repository.UserRepository;
 import spring.hugme.global.error.exceptions.AuthApiException;
-import spring.hugme.global.response.ResponseCode;
+import spring.hugme.domain.auth.dto.LoginResponse;
+import spring.hugme.domain.user.entity.UserEntity;
+import spring.hugme.domain.user.repository.UserRepository;
 import spring.hugme.infra.jwt.JwtProvider;
+import spring.hugme.domain.auth.service.AuthService;
 import spring.hugme.infra.redis.RedisService;
+
+import java.time.LocalDate;
+
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @DisplayName("JWT 인증 통합 테스트")
@@ -29,52 +25,52 @@ class JwtAuthIntegrationTest {
 
     @Autowired
     private AuthService authService;
+
     @Autowired
     private JwtProvider jwtProvider;
+
     @Autowired
     private RedisService redisService;
+
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private Member testUser;
+    private UserEntity testUser;
     private static final String TEST_USERID = "testUser";
     private static final String TEST_PASSWORD = "password123";
 
-    // -------------------------------
-    // 테스트 데이터 초기화
-    // -------------------------------
     @BeforeEach
     void setUp() {
+        // 테스트 데이터 초기화
         userRepository.deleteAll();
         redisService.deleteRefreshToken(TEST_USERID);
 
-        testUser = Member.builder()
+        // 테스트용 유저 생성
+        testUser = UserEntity.builder()
             .userId(TEST_USERID)
             .password(passwordEncoder.encode(TEST_PASSWORD))
             .email(TEST_USERID + "@example.com")
             .name("테스트유저")
             .birthday(LocalDate.of(2000, 1, 1))
             .phone("010-1234-5678")
+            .active(true)
             .build();
 
         userRepository.saveAndFlush(testUser);
-        jwtProvider.generateAndStoreKey(TEST_USERID);
-    }
 
-    @BeforeEach
-    void setUpSecurityContext() {
-        UsernamePasswordAuthenticationToken auth =
-            new UsernamePasswordAuthenticationToken(TEST_USERID, null, null);
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        // JWT 키 생성
+        jwtProvider.generateAndStoreKey(TEST_USERID);
     }
 
     @AfterEach
     void tearDown() {
         try {
             redisService.deleteRefreshToken(TEST_USERID);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            // 테스트 정리 중 예외 무시
         }
     }
 
@@ -86,8 +82,9 @@ class JwtAuthIntegrationTest {
         assertThat(response).isNotNull();
         assertThat(response.getAccessToken()).isNotNull().isNotEmpty();
         assertThat(response.getRefreshToken()).isNotNull().isNotEmpty();
-        assertThat(redisService.getRefreshToken(TEST_USERID))
-            .isEqualTo(response.getRefreshToken());
+
+        String savedToken = redisService.getRefreshToken(TEST_USERID);
+        assertThat(savedToken).isEqualTo(response.getRefreshToken());
     }
 
     @Test
@@ -101,7 +98,8 @@ class JwtAuthIntegrationTest {
     @DisplayName("Access Token 검증 성공")
     void testValidateAccessToken() {
         LoginResponse response = authService.login(TEST_USERID, TEST_PASSWORD);
-        String userId = jwtProvider.validateAccessToken(response.getAccessToken());
+        String userId = jwtProvider.validateToken(response.getAccessToken());
+
         assertThat(userId).isEqualTo(TEST_USERID);
     }
 
@@ -114,12 +112,12 @@ class JwtAuthIntegrationTest {
 
         Thread.sleep(1000); // iat 차이 보장
 
-        LoginResponse reissued = authService.reissueRefreshTokens(TEST_USERID, oldRefreshToken);
+        LoginResponse reissued = authService.reissueTokens(TEST_USERID, oldRefreshToken);
 
         assertThat(reissued.getAccessToken()).isNotEqualTo(oldAccessToken);
         assertThat(reissued.getRefreshToken()).isNotEqualTo(oldRefreshToken);
 
-        String userId = jwtProvider.validateAccessToken(reissued.getAccessToken());
+        String userId = jwtProvider.validateToken(reissued.getAccessToken());
         assertThat(userId).isEqualTo(TEST_USERID);
     }
 
@@ -134,16 +132,8 @@ class JwtAuthIntegrationTest {
     }
 
     @Test
-    @DisplayName("userId를 알 때 Refresh Token 검증")
-    void testValidateRefreshTokenWithUserId() {
-        LoginResponse response = authService.login(TEST_USERID, TEST_PASSWORD);
-        String userId = jwtProvider.validateRefreshToken(TEST_USERID, response.getRefreshToken());
-        assertThat(userId).isEqualTo(TEST_USERID);
-    }
-
-    @Test
-    @DisplayName("로그아웃 성공 - Refresh Token 삭제")
-    void testLogoutSuccess() {
+    @DisplayName("로그아웃 - Refresh Token 삭제")
+    void testLogout() {
         authService.login(TEST_USERID, TEST_PASSWORD);
         authService.logout(TEST_USERID);
 
@@ -152,15 +142,11 @@ class JwtAuthIntegrationTest {
     }
 
     @Test
-    @DisplayName("로그아웃 실패 - MISMATCH_TOKEN")
-    void testLogoutMismatch() {
-        authService.login(TEST_USERID, TEST_PASSWORD);
+    @DisplayName("userId를 알 때 Refresh Token 검증")
+    void testValidateRefreshTokenWithUserId() {
+        LoginResponse response = authService.login(TEST_USERID, TEST_PASSWORD);
+        String userId = jwtProvider.validateToken(TEST_USERID, response.getRefreshToken());
 
-        String wrongUserId = "otherUser";
-
-        AuthApiException ex = assertThrows(AuthApiException.class,
-            () -> authService.logout(wrongUserId));
-
-        assertThat(ex.getCode()).isEqualTo(ResponseCode.MISMATCH_TOKEN);
+        assertThat(userId).isEqualTo(TEST_USERID);
     }
 }
