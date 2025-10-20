@@ -6,9 +6,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import spring.hugme.infra.error.exceptions.AuthApiException;
-import spring.hugme.security.jwt.JwtProvider;
-import spring.hugme.service.RedisService;
+import spring.hugme.global.error.exceptions.AuthApiException;
+import spring.hugme.infra.jwt.JwtProvider;
+import spring.hugme.infra.redis.RedisService;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -22,7 +22,7 @@ class JwtProviderTest {
     @Autowired
     private RedisService redisService;
 
-    private final Long testUserId = 12345L;
+    private final String testUserId = "test12345";
 
     @BeforeEach
     void setUp() {
@@ -64,7 +64,7 @@ class JwtProviderTest {
         String token = jwtProvider.generateAccessToken(testUserId);
 
         // when
-        Long extractedUserId = jwtProvider.validateToken(token);
+        String extractedUserId = jwtProvider.validateToken(token);
 
         // then
         assertThat(extractedUserId).isEqualTo(testUserId);
@@ -77,7 +77,7 @@ class JwtProviderTest {
         String token = jwtProvider.generateAccessToken(testUserId);
 
         // when
-        Long extractedUserId = jwtProvider.validateToken(testUserId, token);
+        String extractedUserId = jwtProvider.validateToken(testUserId, token);
 
         // then
         assertThat(extractedUserId).isEqualTo(testUserId);
@@ -98,7 +98,7 @@ class JwtProviderTest {
     @DisplayName("다른 사용자의 Key로 검증 실패")
     void testValidateTokenWithWrongKey() {
         // given
-        Long anotherUserId = 99999L;
+        String anotherUserId = "anotherUserId";
         jwtProvider.generateAndStoreKey(anotherUserId);
         String token = jwtProvider.generateAccessToken(testUserId);
 

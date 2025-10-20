@@ -1,18 +1,19 @@
-package spring.hugme.service;
+package spring.hugme.domain.auth.service;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import spring.hugme.infra.error.exceptions.AuthApiException;
-import spring.hugme.infra.response.ResponseCode;
-import spring.hugme.model.dto.LoginResponse;
-import spring.hugme.model.dto.UserRequestDto.SignUp;
-import spring.hugme.model.entity.UserEntity;
-import spring.hugme.repository.UserRepository;
-import spring.hugme.security.id.Snowflake;
-import spring.hugme.security.jwt.JwtProvider;
+import spring.hugme.global.error.exceptions.AuthApiException;
+import spring.hugme.global.response.ResponseCode;
+import spring.hugme.domain.auth.dto.LoginResponse;
+import spring.hugme.domain.auth.dto.UserRequestDto.SignUp;
+import spring.hugme.domain.user.entity.UserEntity;
+import spring.hugme.domain.user.repository.UserRepository;
+import spring.hugme.infra.jwt.JwtProvider;
 
 import java.util.Map;
+import spring.hugme.infra.redis.RedisService;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +23,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final RedisService redisService;
-    private final Snowflake snowflake;
 
     // 회원가입
     public Map<String, String> signup(SignUp dto) {
@@ -32,16 +32,15 @@ public class AuthService {
         if (userRepository.existsByEmail(dto.getEmail()))
             throw new AuthApiException(ResponseCode.CONFLICT_EXIST_EMAIL);
 
-        long newId = snowflake.nextId();
         UserEntity user = UserEntity.builder()
-                .id(newId)
+                .id(dto.getId())
                 .userId(dto.getUserId())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .email(dto.getEmail())
                 .name(dto.getName())
                 .birthday(dto.getBirthday())
                 .phone(dto.getPhone())
-                .isActive(true)
+                .active(true)
                 .build();
         userRepository.save(user);
 
@@ -57,18 +56,18 @@ public class AuthService {
             throw new AuthApiException(ResponseCode.BAD_CREDENTIAL);
         }
 
-        jwtProvider.generateAndStoreKey(user.getId());
+        jwtProvider.generateAndStoreKey(String.valueOf(user.getUserId()));
 
-        String accessToken = jwtProvider.generateAccessToken(user.getId());
-        String refreshToken = jwtProvider.generateRefreshToken(user.getId());
+        String accessToken = jwtProvider.generateAccessToken(user.getUserId());
+        String refreshToken = jwtProvider.generateRefreshToken(user.getUserId());
 
-        redisService.saveRefreshToken(user.getId(), refreshToken);
+        redisService.saveRefreshToken(user.getUserId(), refreshToken);
 
         return new LoginResponse(accessToken, refreshToken);
     }
 
     // Refresh Token 검증 (Redis 비교만)
-    public void validateRefreshToken(Long userId, String refreshToken) {
+    public void validateRefreshToken(String userId, String refreshToken) {
         String savedToken = redisService.getRefreshToken(userId);
         if (savedToken == null || !savedToken.equals(refreshToken)) {
             throw new AuthApiException(ResponseCode.REFRESH_TOKEN_EXPIRED);
@@ -76,9 +75,9 @@ public class AuthService {
         // JWT 서명 검증은 Filter에서 이미 했으므로 여기선 Redis 비교만
     }
     // Refresh Token 재발급 (Controller에서 호출)
-    public LoginResponse reissueTokens(Long userId, String refreshToken) {
+    public LoginResponse reissueTokens(String userId, String refreshToken) {
         // 1. JWT 서명 검증
-        Long validatedUserId = jwtProvider.validateToken(userId, refreshToken);
+        String validatedUserId = jwtProvider.validateToken(userId, refreshToken);
 
         // 2. userId 일치 확인
         if (!validatedUserId.equals(userId)) {
@@ -98,7 +97,7 @@ public class AuthService {
         return new LoginResponse(newAccessToken, newRefreshToken);
     }
     // 로그아웃
-    public void logout(Long userId) {
+    public void logout(String userId) {
         redisService.deleteRefreshToken(userId);
     }
 }

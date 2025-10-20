@@ -7,14 +7,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import spring.hugme.infra.error.exceptions.AuthApiException;
-import spring.hugme.model.dto.LoginResponse;
-import spring.hugme.model.entity.UserEntity;
-import spring.hugme.repository.UserRepository;
-import spring.hugme.security.id.Snowflake;
-import spring.hugme.security.jwt.JwtProvider;
-import spring.hugme.service.AuthService;
-import spring.hugme.service.RedisService;
+import spring.hugme.global.error.exceptions.AuthApiException;
+import spring.hugme.domain.auth.dto.LoginResponse;
+import spring.hugme.domain.user.entity.UserEntity;
+import spring.hugme.domain.user.repository.UserRepository;
+import spring.hugme.infra.jwt.JwtProvider;
+import spring.hugme.domain.auth.service.AuthService;
+import spring.hugme.infra.redis.RedisService;
 
 import java.time.LocalDate;
 
@@ -39,164 +38,115 @@ class JwtAuthIntegrationTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private Snowflake snowflake;
-
     private UserEntity testUser;
+    private static final String TEST_USERID = "testUser";
     private static final String TEST_PASSWORD = "password123";
 
     @BeforeEach
     void setUp() {
-        // 기존 테스트 데이터 정리
+        // 테스트 데이터 초기화
         userRepository.deleteAll();
+        redisService.deleteRefreshToken(TEST_USERID);
 
-        long userId = snowflake.nextId();
+        // 테스트용 유저 생성
         testUser = UserEntity.builder()
-            .id(userId)
-            .userId("testuser_" + userId)
+            .userId(TEST_USERID)
             .password(passwordEncoder.encode(TEST_PASSWORD))
-            .email("test_" + userId + "@example.com")
+            .email(TEST_USERID + "@example.com")
             .name("테스트유저")
             .birthday(LocalDate.of(2000, 1, 1))
             .phone("010-1234-5678")
-            .isActive(true)
+            .active(true)
             .build();
 
         userRepository.saveAndFlush(testUser);
 
         // JWT 키 생성
-        jwtProvider.generateAndStoreKey(testUser.getId());
+        jwtProvider.generateAndStoreKey(TEST_USERID);
     }
 
     @AfterEach
     void tearDown() {
         try {
-            if (testUser != null && testUser.getId() != null) {
-                redisService.deleteRefreshToken(testUser.getId());
-                userRepository.deleteById(testUser.getId());
-            }
+            redisService.deleteRefreshToken(TEST_USERID);
         } catch (Exception e) {
-            // 테스트 정리 중 발생한 예외 무시
+            // 테스트 정리 중 예외 무시
         }
     }
 
     @Test
     @DisplayName("로그인 성공 - JWT 토큰 발급")
     void testLoginSuccess() {
-        // when
-        LoginResponse response = authService.login(testUser.getUserId(), TEST_PASSWORD);
+        LoginResponse response = authService.login(TEST_USERID, TEST_PASSWORD);
 
-        // then
-        assertThat(response)
-            .isNotNull();
-        assertThat(response.getAccessToken())
-            .isNotNull()
-            .isNotEmpty();
-        assertThat(response.getRefreshToken())
-            .isNotNull()
-            .isNotEmpty();
+        assertThat(response).isNotNull();
+        assertThat(response.getAccessToken()).isNotNull().isNotEmpty();
+        assertThat(response.getRefreshToken()).isNotNull().isNotEmpty();
 
-        String savedToken = redisService.getRefreshToken(testUser.getId());
-        assertThat(savedToken)
-            .isEqualTo(response.getRefreshToken());
+        String savedToken = redisService.getRefreshToken(TEST_USERID);
+        assertThat(savedToken).isEqualTo(response.getRefreshToken());
     }
 
     @Test
     @DisplayName("로그인 실패 - 잘못된 비밀번호")
     void testLoginFailWithWrongPassword() {
-        // given
-        String userId = testUser.getUserId();
-        String wrongPassword = "wrongPassword";
-
-        // when & then
         assertThatExceptionOfType(AuthApiException.class)
-            .isThrownBy(() -> authService.login(userId, wrongPassword));
+            .isThrownBy(() -> authService.login(TEST_USERID, "wrongPassword"));
     }
 
     @Test
     @DisplayName("Access Token 검증 성공")
     void testValidateAccessToken() {
-        // given
-        LoginResponse response = authService.login(testUser.getUserId(), TEST_PASSWORD);
+        LoginResponse response = authService.login(TEST_USERID, TEST_PASSWORD);
+        String userId = jwtProvider.validateToken(response.getAccessToken());
 
-        // when
-        Long userId = jwtProvider.validateToken(response.getAccessToken());
-
-        // then
-        assertThat(userId)
-            .isNotNull()
-            .isEqualTo(testUser.getId());
+        assertThat(userId).isEqualTo(TEST_USERID);
     }
 
     @Test
     @DisplayName("Refresh Token으로 토큰 재발급")
     void testReissueTokens() throws InterruptedException {
-        // given
-        LoginResponse loginResponse = authService.login(testUser.getUserId(), TEST_PASSWORD);
+        LoginResponse loginResponse = authService.login(TEST_USERID, TEST_PASSWORD);
         String oldRefreshToken = loginResponse.getRefreshToken();
         String oldAccessToken = loginResponse.getAccessToken();
 
-        // 시간 차이 보장 (JWT의 iat 클레임이 밀리초 단위)
-        Thread.sleep(1000);
+        Thread.sleep(1000); // iat 차이 보장
 
-        // when
-        LoginResponse reissued = authService.reissueTokens(testUser.getId(), oldRefreshToken);
+        LoginResponse reissued = authService.reissueTokens(TEST_USERID, oldRefreshToken);
 
-        // then
-        assertThat(reissued.getAccessToken())
-            .isNotNull()
-            .isNotEqualTo(oldAccessToken);
+        assertThat(reissued.getAccessToken()).isNotEqualTo(oldAccessToken);
+        assertThat(reissued.getRefreshToken()).isNotEqualTo(oldRefreshToken);
 
-        assertThat(reissued.getRefreshToken())
-            .isNotNull()
-            .isNotEqualTo(oldRefreshToken);
-
-        // 새 토큰 검증
-        Long userId = jwtProvider.validateToken(reissued.getAccessToken());
-        assertThat(userId)
-            .isEqualTo(testUser.getId());
+        String userId = jwtProvider.validateToken(reissued.getAccessToken());
+        assertThat(userId).isEqualTo(TEST_USERID);
     }
 
     @Test
     @DisplayName("Refresh Token 검증 실패 - Redis에 없는 토큰")
     void testValidateRefreshTokenFailWithInvalidToken() {
-        // given
-        authService.login(testUser.getUserId(), TEST_PASSWORD);
-        Long userId = testUser.getId();
+        authService.login(TEST_USERID, TEST_PASSWORD);
         String fakeToken = "fake.refresh.token";
 
-        // when & then
         assertThatExceptionOfType(AuthApiException.class)
-            .isThrownBy(() -> authService.validateRefreshToken(userId, fakeToken));
+            .isThrownBy(() -> authService.validateRefreshToken(TEST_USERID, fakeToken));
     }
 
     @Test
     @DisplayName("로그아웃 - Refresh Token 삭제")
     void testLogout() {
-        // given
-        authService.login(testUser.getUserId(), TEST_PASSWORD);
+        authService.login(TEST_USERID, TEST_PASSWORD);
+        authService.logout(TEST_USERID);
 
-        // when
-        authService.logout(testUser.getId());
-
-        // then
-        String token = redisService.getRefreshToken(testUser.getId());
-        assertThat(token)
-            .isNull();
+        String token = redisService.getRefreshToken(TEST_USERID);
+        assertThat(token).isNull();
     }
 
     @Test
     @DisplayName("userId를 알 때 Refresh Token 검증")
     void testValidateRefreshTokenWithUserId() {
-        // given
-        LoginResponse response = authService.login(testUser.getUserId(), TEST_PASSWORD);
+        LoginResponse response = authService.login(TEST_USERID, TEST_PASSWORD);
+        String userId = jwtProvider.validateToken(TEST_USERID, response.getRefreshToken());
 
-        // when
-        Long userId = jwtProvider.validateToken(testUser.getId(), response.getRefreshToken());
-
-        // then
-        assertThat(userId)
-            .isNotNull()
-            .isEqualTo(testUser.getId());
+        assertThat(userId).isEqualTo(TEST_USERID);
     }
 }

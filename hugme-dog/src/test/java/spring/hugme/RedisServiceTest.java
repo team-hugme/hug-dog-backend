@@ -5,7 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import spring.hugme.service.RedisService;
+import spring.hugme.infra.redis.RedisService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,7 +16,7 @@ class RedisServiceTest {
     @Autowired
     private RedisService redisService;
 
-    private final Long testUserId = 12345L;
+    private final String testUserId = "testUserId";
     private final String testToken = "refreshToken123";
 
     @AfterEach
@@ -53,9 +53,9 @@ class RedisServiceTest {
     @DisplayName("존재하지 않는 Refresh Token 조회")
     void testGetNonExistentRefreshToken() {
         // when
-        String tokenFromRedis = redisService.getRefreshToken(99999L);
+        String tokenFromRedis = redisService.getRefreshToken("anotherUserId");
 
-        // then
+        // thenå
         assertThat(tokenFromRedis).isNull();
     }
 }
