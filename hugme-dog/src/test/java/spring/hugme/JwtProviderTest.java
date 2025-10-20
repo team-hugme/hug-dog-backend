@@ -77,7 +77,7 @@ class JwtProviderTest {
         String token = jwtProvider.generateAccessToken(testUserId);
 
         // when
-        String extractedUserId = jwtProvider.validateRefreshToken(testUserId, token);
+        Long extractedUserId = jwtProvider.validateToken(testUserId, token);
 
         // then
         assertThat(extractedUserId).isEqualTo(testUserId);
