@@ -57,7 +57,9 @@ src/main/resources/application-local.yml
 **/application-local.*
 **/application-secret.*
 **/application-prod.properties
-
+application-local.*
+application-secret.*
+application-prod.properties
 # 기타
 local.properties
 
