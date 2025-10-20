@@ -1,12 +1,12 @@
-package spring.hugme.controller;
+package spring.hugme.domain.auth.controller.api;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import spring.hugme.infra.response.CommonApiResponse;
-import spring.hugme.infra.response.ResponseCode;
+import spring.hugme.global.response.CommonApiResponse;
+import spring.hugme.global.response.ResponseCode;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;

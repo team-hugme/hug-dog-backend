@@ -1,4 +1,4 @@
-package spring.hugme.controller;
+package spring.hugme.domain.auth.controller.view;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
