@@ -1,65 +1,124 @@
 plugins {
     id 'java'
+    id 'application'
     id 'org.springframework.boot' version '3.5.6'
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'src.main'
+group = 'com.hugme'
 version = '0.0.1-SNAPSHOT'
 description = 'hugme-dog'
 
+application {
+    mainClass.set("spring.hugme.HugDogApplication")
+}
+
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
 repositories {
     mavenCentral()
+    maven { url = "https://repo.spring.io/release" }
+    mavenLocal()
+    flatDir { dirs "libs" }
 }
 
 dependencies {
-    implementation('org.springframework.boot:spring-boot-starter-web')
-    implementation('org.springframework.boot:spring-boot-starter-validation')
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security:3.5.6'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf:3.5.6'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6:3.1.1.RELEASE'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    //Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-    runtimeOnly('org.postgresql:postgresql')
-    implementation('io.github.wimdeblauwe:error-handling-spring-boot-starter:4.6.0')
+    // QueryDSL
+    implementation 'io.github.openfeign.querydsl:querydsl-jpa:5.6.1'
+    annotationProcessor 'io.github.openfeign.querydsl:querydsl-apt:5.6.1'
+    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+    annotationProcessor 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+    implementation 'org.eclipse.persistence:javax.persistence:2.2.1'
+    annotationProcessor 'org.eclipse.persistence:javax.persistence:2.2.1'
 
-    // gcp
-    implementation platform('com.google.cloud:spring-cloud-gcp-dependencies:6.2.2')
-    implementation 'com.google.cloud:spring-cloud-gcp-starter-secretmanager'
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
-    // Swagger
-    implementation('org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6')
+    // Swagger/OpenAPI
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
 
-    compileOnly('org.projectlombok:lombok')
-    annotationProcessor('org.projectlombok:lombok')
-    testCompileOnly('org.projectlombok:lombok')
-    testAnnotationProcessor('org.projectlombok:lombok')
-    testImplementation('org.springframework.boot:spring-boot-starter-test')
-    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security
-    implementation("org.springframework.boot:spring-boot-starter-security:3.4.5")
+    // Commons / Logback
+    implementation 'org.apache.commons:commons-lang3:3.18.0'
+    implementation 'ch.qos.logback:logback-core:1.5.19'
+    implementation 'ch.qos.logback:logback-classic:1.5.19'
 
-    // jwt
-    implementation("io.jsonwebtoken:jjwt-api:0.12.6")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 
+    // MySQL
+    implementation 'com.mysql:mysql-connector-j:9.0.0'
+    runtimeOnly 'com.mysql:mysql-connector-j:9.0.0'
 
-    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis
-    implementation("org.springframework.boot:spring-boot-starter-data-redis:3.4.5")
+    // 개발 편의
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-    implementation('org.springframework.boot:spring-boot-starter-data-jpa')
-    // https://mvnrepository.com/artifact/jakarta.persistence/jakarta.persistence-api
-    implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
-    annotationProcessor "jakarta.persistence:jakarta.persistence-api:3.1.0"
-    annotationProcessor "jakarta.annotation:jakarta.annotation-api:2.1.1"
-    implementation ("com.querydsl:querydsl-jpa:5.0.0:jakarta")
-    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    // 테스트
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.awaitility:awaitility:4.2.0'
+}
 
-    // https://mvnrepository.com/artifact/org.modelmapper/modelmapper
-    implementation("org.modelmapper:modelmapper:3.2.2")
+// 트랜지티브 의존성 강제 적용
+configurations.configureEach {
+    resolutionStrategy.force(
+            "org.apache.commons:commons-lang3:3.18.0",
+            "ch.qos.logback:logback-core:1.5.19",
+            "ch.qos.logback:logback-classic:1.5.19"
+    )
+}
 
+// QueryDSL Q 클래스 생성 디렉토리
+def querydslGeneratedDir = layout.buildDirectory.dir("generated/querydsl")
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java', querydslGeneratedDir.get().asFile.absolutePath]
+        }
+    }
+}
+
+// QueryDSL 코드 생성 task
+tasks.register('generateQuerydsl', JavaCompile) {
+    description = 'Generate Querydsl Q classes'
+    group = 'build'
+
+    source = fileTree('src/main/java') { include '**/*.java' }
+    classpath = sourceSets.main.compileClasspath + configurations.annotationProcessor
+    destinationDirectory.set(querydslGeneratedDir)
+
+    options.annotationProcessorPath = configurations.annotationProcessor
+    options.compilerArgs = [
+            "-proc:only",
+            "-processor", "com.querydsl.apt.jpa.JPAAnnotationProcessor"
+    ]
+}
+
+tasks.named('compileJava') {
+    dependsOn tasks.named('generateQuerydsl')
 }
 
 tasks.named('test') {
