@@ -1,8 +1,11 @@
 package spring.hugme.domain.auth.controller;
 
 import jakarta.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import spring.hugme.domain.auth.dto.LoginRequest;
 import spring.hugme.domain.auth.dto.LoginResponse;
@@ -15,7 +18,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/v1/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -37,6 +40,19 @@ public class AuthController {
         return CommonApiResponse.success(ResponseCode.CREATED, "정상적으로 회원가입이 완료되었습니다.", data);
     }
 
+    // 토큰 검증용 API
+    @GetMapping("/verify")
+    public CommonApiResponse<Map<String, Object>> verify() {
+        // SecurityContext에서 userId 가져오기
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("authenticated", true);
+        data.put("userId", principal);
+        data.put("timestamp", LocalDateTime.now());
+
+        return CommonApiResponse.success(ResponseCode.OK, "인증 성공", data);
+    }
     // 토큰 재발급
     @PostMapping("/reissue")
     public CommonApiResponse<LoginResponse> reissue(@RequestParam String userId,
