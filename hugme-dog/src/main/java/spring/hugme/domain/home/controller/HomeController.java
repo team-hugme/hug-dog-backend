@@ -16,4 +16,10 @@ public class HomeController {
     public String mainPage() {
         return "main";
     }
+
+    // 메인 페이지
+    @GetMapping("/main")
+    public String mainPage() {
+        return "main";
+    }
 }
