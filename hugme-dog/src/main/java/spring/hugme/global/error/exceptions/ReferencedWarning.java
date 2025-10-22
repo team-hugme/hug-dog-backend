@@ -1,4 +1,4 @@
-package spring.hugme.infra.util;
+package spring.hugme.global.error.exceptions;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
