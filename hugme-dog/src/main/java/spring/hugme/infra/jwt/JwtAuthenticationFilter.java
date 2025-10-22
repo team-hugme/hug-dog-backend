@@ -30,9 +30,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // 인증이 필요없는 경로들 (HTML 페이지 + 정적 리소스)
     private static final List<String> EXCLUDE_URLS = Arrays.asList(
-        "/v1/auth/login",
-        "/v1/auth/signup",
-        "/v1/auth/main",
         "/css/",
         "/js/",
         "/images/"
