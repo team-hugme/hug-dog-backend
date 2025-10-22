@@ -1,4 +1,4 @@
-package spring.hugme.infra.error.exceptions;
+package spring.hugme.global.error.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

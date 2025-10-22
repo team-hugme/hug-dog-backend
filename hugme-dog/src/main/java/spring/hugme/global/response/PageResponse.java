@@ -1,4 +1,4 @@
-package spring.hugme.infra.response;
+package spring.hugme.global.response;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;

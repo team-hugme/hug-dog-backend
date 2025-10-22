@@ -1,9 +1,11 @@
-package src.main.java.spring.hugme.infra.error.exceptions;
+package spring.hugme.global.error.exceptions;
 
-import com.honlife.core.infra.response.ResponseCode;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import spring.hugme.global.response.ResponseCode;
 
 @Slf4j
+@Getter
 public class CommonException extends RuntimeException {
     
     private final ResponseCode code;
