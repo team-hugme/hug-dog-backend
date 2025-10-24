@@ -64,7 +64,7 @@ class JwtProviderTest {
         String token = jwtProvider.generateAccessToken(testUserId);
 
         // when
-        String extractedUserId = jwtProvider.validateToken(token);
+        String extractedUserId = jwtProvider.validateAccessToken(token);
 
         // then
         assertThat(extractedUserId).isEqualTo(testUserId);
@@ -77,7 +77,7 @@ class JwtProviderTest {
         String token = jwtProvider.generateAccessToken(testUserId);
 
         // when
-        String extractedUserId = jwtProvider.validateToken(testUserId, token);
+        String extractedUserId = jwtProvider.validateRefreshToken(testUserId, token);
 
         // then
         assertThat(extractedUserId).isEqualTo(testUserId);
@@ -90,7 +90,7 @@ class JwtProviderTest {
         String invalidToken = "invalid.jwt.token";
 
         // when & then
-        assertThatThrownBy(() -> jwtProvider.validateToken(invalidToken))
+        assertThatThrownBy(() -> jwtProvider.validateAccessToken(invalidToken))
                 .isInstanceOf(AuthApiException.class);
     }
 
@@ -103,7 +103,7 @@ class JwtProviderTest {
         String token = jwtProvider.generateAccessToken(testUserId);
 
         // when & then
-        assertThatThrownBy(() -> jwtProvider.validateToken(anotherUserId, token))
+        assertThatThrownBy(() -> jwtProvider.validateRefreshToken(anotherUserId, token))
                 .isInstanceOf(AuthApiException.class);
     }
 }
