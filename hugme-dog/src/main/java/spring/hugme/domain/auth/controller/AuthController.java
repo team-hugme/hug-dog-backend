@@ -1,7 +1,5 @@
 package spring.hugme.domain.auth.controller;
 
-import static spring.hugme.global.response.ResponseCode.MISMATCH_TOKEN;
-
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -9,20 +7,17 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import spring.hugme.domain.auth.dto.request.LoginRequest;
-import spring.hugme.domain.auth.dto.request.LogoutRequest;
 import spring.hugme.domain.auth.dto.request.ReissueRequest;
-import spring.hugme.domain.auth.dto.request.UserRequestDto;
+import spring.hugme.domain.auth.dto.request.SignUpRequest;
 import spring.hugme.domain.auth.dto.response.LoginResponse;
 import spring.hugme.domain.auth.service.AuthService;
 import spring.hugme.global.controller.BaseController;
-import spring.hugme.global.error.exceptions.AuthApiException;
 import spring.hugme.global.response.CommonApiResponse;
 import spring.hugme.global.response.ResponseCode;
 
@@ -44,7 +39,8 @@ public class AuthController extends BaseController {
 
     // 회원가입
     @PostMapping("/signup")
-    public CommonApiResponse<Map<String, String>> signup(@RequestBody @Valid UserRequestDto.SignUp dto) {
+    public CommonApiResponse<Map<String, String>> signup(
+        @RequestBody @Valid SignUpRequest.SignUp dto) {
         log.info("회원가입 요청: userId={}", dto.getUserId());
         Map<String, String> data = authService.signup(dto);
         return CommonApiResponse.success(ResponseCode.CREATED, "정상적으로 회원가입이 완료되었습니다.", data);
@@ -89,17 +85,11 @@ public class AuthController extends BaseController {
             Map.of("accessToken", newAccessToken));
     }
 
-    //logout
+    // AuthController.java
     @PostMapping("/logout")
-    public CommonApiResponse<Void> logout(@RequestBody LogoutRequest dto) {
-        String tokenUserId = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        if (!dto.getUserId().equals(tokenUserId)) {
-            throw new AuthApiException(MISMATCH_TOKEN);
-        }
+    public CommonApiResponse<Void> logout(@AuthenticationPrincipal String tokenUserId) {
+        log.info("로그아웃 요청: userId={}", tokenUserId);
         authService.logout(tokenUserId);
         return CommonApiResponse.success(ResponseCode.NO_CONTENT, "정상적으로 로그아웃 완료되었습니다.");
     }
-
-
 }

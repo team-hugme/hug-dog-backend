@@ -25,30 +25,26 @@ public class SecurityConfig {
         log.info("SecurityFilterChain 설정 시작");
 
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> {
-                    log.info("URL 권한 설정");
-                    auth
-                            // 페이지 경로는 모두 허용 (JavaScript에서 토큰 검증)
-                            .requestMatchers(
-                                    "/",
-                                    "/v1/auth/login",
-                                    "/v1/auth/signup",
-                                    "/v1/auth/main",
-                                    "/css/**",
-                                    "/js/**",
-                                    "/images/**"
-                            ).permitAll()
-                            // API 경로만 인증 필요
-                            .requestMatchers("/v1/api/**").authenticated()
-                            .requestMatchers("/v1/auth/reissue").authenticated()
-                            .requestMatchers("/v1/auth/logout").authenticated()
-                            // 나머지는 인증 필요
-                            .anyRequest().authenticated();
-                })
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(
+                session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                // 정적 리소스 및 뷰 허용
+                .requestMatchers("/", "/view/**", "/css/**", "/js/**", "/images/**").permitAll()
+
+                // 인증 제외 API
+                .requestMatchers(
+                    "/api/v1/auth/login",
+                    "/api/v1/auth/signup",
+                    "/api/v1/auth/reissue/**"
+                ).permitAll()
+                // 그 외 API 요청은 인증 필요
+                .requestMatchers("/api/**").authenticated()
+                // 그 외 API 요청은 인증 필요
+                .anyRequest().authenticated()
+            )
+            // JWT 필터 등록
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         log.info("SecurityFilterChain 설정 완료");
         return http.build();

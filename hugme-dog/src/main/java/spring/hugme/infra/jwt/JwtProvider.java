@@ -2,22 +2,23 @@ package spring.hugme.infra.jwt;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
-import spring.hugme.global.error.exceptions.AuthApiException;
-import spring.hugme.global.response.ResponseCode;
-
-import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
+import javax.crypto.SecretKey;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
+import spring.hugme.global.error.exceptions.AuthApiException;
+import spring.hugme.global.response.ResponseCode;
 
 @Component
 @RequiredArgsConstructor
@@ -68,7 +69,7 @@ public class JwtProvider {
     }
 
     /**  4. userId를 알고 있을 때 (RefreshToken 검증용) */
-    public String validateToken(String userId, String token) {
+    public String validateRefreshToken(String userId, String token) {
         try {
             SecretKey key = getKey(userId);
             return Jwts.parser()
@@ -84,8 +85,10 @@ public class JwtProvider {
         }
     }
 
-    /**  5. userId를 모를 때 (AccessToken 검증용 - 필터 등) */
-    public String validateToken(String token) {
+    /**
+     * 5. userId를 모를 때 (AccessToken 검증용 - 필터 등)
+     */
+    public String validateAccessToken(String token) {
         try {
             //  토큰에서 userId 추출
             String userId = extractUserIdFromToken(token);

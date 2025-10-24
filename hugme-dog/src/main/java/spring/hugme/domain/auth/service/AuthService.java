@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import spring.hugme.domain.auth.dto.request.UserRequestDto.SignUp;
+import spring.hugme.domain.auth.dto.request.SignUpRequest.SignUp;
 import spring.hugme.domain.auth.dto.response.LoginResponse;
 import spring.hugme.domain.user.entity.Member;
 import spring.hugme.domain.user.repository.UserRepository;
