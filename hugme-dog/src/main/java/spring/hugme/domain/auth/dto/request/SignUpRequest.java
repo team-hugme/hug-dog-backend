@@ -1,17 +1,19 @@
-package spring.hugme.domain.auth.dto;
+package spring.hugme.domain.auth.dto.request;
 
+import java.time.LocalDate;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.time.LocalDate;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class UserRequestDto {
+public class SignUpRequest {
 
     @Getter
     @Setter
     public static class SignUp {
+
         private UUID id;
         private String userId;
         private String password;
