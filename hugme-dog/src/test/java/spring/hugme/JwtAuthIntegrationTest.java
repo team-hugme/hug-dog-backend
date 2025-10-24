@@ -1,6 +1,14 @@
 package spring.hugme;
 
-import org.junit.jupiter.api.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.time.LocalDate;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,21 +23,20 @@ import spring.hugme.global.response.ResponseCode;
 import spring.hugme.infra.jwt.JwtProvider;
 import spring.hugme.infra.redis.RedisService;
 
-import java.time.LocalDate;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 @SpringBootTest
 @DisplayName("JWT 인증 통합 테스트")
 class JwtAuthIntegrationTest {
 
-    @Autowired private AuthService authService;
-    @Autowired private JwtProvider jwtProvider;
-    @Autowired private RedisService redisService;
-    @Autowired private UserRepository userRepository;
-    @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired
+    private AuthService authService;
+    @Autowired
+    private JwtProvider jwtProvider;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     private Member testUser;
     private static final String TEST_USERID = "testUser";
@@ -55,6 +62,7 @@ class JwtAuthIntegrationTest {
         userRepository.saveAndFlush(testUser);
         jwtProvider.generateAndStoreKey(TEST_USERID);
     }
+
     @BeforeEach
     void setUpSecurityContext() {
         UsernamePasswordAuthenticationToken auth =
@@ -66,7 +74,8 @@ class JwtAuthIntegrationTest {
     void tearDown() {
         try {
             redisService.deleteRefreshToken(TEST_USERID);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     // -------------------------------

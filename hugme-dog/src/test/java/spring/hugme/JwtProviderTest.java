@@ -1,5 +1,8 @@
 package spring.hugme;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -9,8 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import spring.hugme.global.error.exceptions.AuthApiException;
 import spring.hugme.infra.jwt.JwtProvider;
 import spring.hugme.infra.redis.RedisService;
-
-import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @DisplayName("JWT Provider 테스트")
