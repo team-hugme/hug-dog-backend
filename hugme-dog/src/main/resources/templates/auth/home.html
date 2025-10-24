@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>User 로그인 후 화면</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="main-container" id="mainContent" style="display: none;">
+  <div class="welcome-section">
+    <p>환영합니다!</p>
+    <span class="status-badge status-active">로그인 중</span>
+  </div>
+
+  <div class="user-info">
+    <h3>📋 사용자 정보</h3>
+    <div class="info-item">
+      <strong>사용자 ID:</strong>
+      <span id="userIdDisplay">로딩 중...</span>
+    </div>
+    <div class="info-item">
+      <strong>로그인 시간:</strong>
+      <span id="loginTime"></span>
+    </div>
+  </div>
+
+  <div class="token-section">
+    <h4>🔐 Access Token</h4>
+    <div class="token-display" id="accessTokenDisplay">토큰 로딩 중...</div>
+  </div>
+
+  <div class="token-section" style="border-left-color: #2196f3; background: #e3f2fd;">
+    <h4 style="color: #1565c0;">🔄 Refresh Token</h4>
+    <div class="token-display" id="refreshTokenDisplay">토큰 로딩 중...</div>
+  </div>
+
+  <div class="action-buttons">
+    <button class="btn btn-danger" onclick="logout()">로그아웃</button>
+  </div>
+
+  <div id="errorMessage"></div>
+</div>
+
+<div class="loading" id="loadingMessage">
+  <h2>🔍 인증 확인 중...</h2>
+  <p>잠시만 기다려주세요.</p>
+</div>
+
+<script th:inline="javascript">
+  const DEV_DOMAIN = [[${devDomain}]];
+  let userId = null;
+
+  // -------------------------------
+  // 페이지 로드 시 자동 인증 확인 & 토큰 재발급
+  // -------------------------------
+  window.onload = async function () {
+    await checkAuthentication();
+  };
+
+  async function checkAuthentication() {
+    let accessToken = localStorage.getItem('accessToken');
+    let refreshToken = localStorage.getItem('refreshToken');
+
+    if (!accessToken || !refreshToken) {
+      return redirectToLogin('로그인이 필요합니다.');
+    }
+
+    try {
+      userId = parseJwt(accessToken).sub;
+    } catch {
+      return redirectToLogin('유효하지 않은 토큰입니다.');
+    }
+
+    // Access Token 검증
+    const verified = await verifyAccessToken(accessToken);
+    if (!verified) {
+      // Access Token 재발급
+      const accessSuccess = await reissueAccessToken();
+      if (!accessSuccess) {
+        // Refresh Token 재발급
+        const refreshSuccess = await reissueRefreshToken();
+        if (!refreshSuccess) {
+          return redirectToLogin('세션 만료. 다시 로그인 필요');
+        }
+      }
+    }
+
+    // 최종 토큰 가져오기
+    accessToken = localStorage.getItem('accessToken');
+    refreshToken = localStorage.getItem('refreshToken');
+    showMainContent(accessToken, refreshToken);
+  }
+
+  // -------------------------------
+  // Access Token 검증
+  // -------------------------------
+  async function verifyAccessToken(token) {
+    try {
+      const res = await fetch(`${DEV_DOMAIN}/api/v1/auth/verify`, {
+        method: 'GET',
+        headers: {'Authorization': `Bearer ${token}`}
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }
+
+  // -------------------------------
+  // Access Token 재발급
+  // -------------------------------
+  async function reissueAccessToken() {
+    try {
+      const res = await fetch(`${DEV_DOMAIN}/api/v1/auth/reissue/access`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({userId})
+      });
+      const result = await res.json();
+      if (result.status === "201") {
+        localStorage.setItem('accessToken', result.data.accessToken);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
+  // -------------------------------
+  // Refresh Token 재발급
+  // -------------------------------
+  async function reissueRefreshToken() {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) {
+      return false;
+    }
+
+    try {
+      const res = await fetch(`${DEV_DOMAIN}/api/v1/auth/reissue/refresh`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({userId, refreshToken})
+      });
+      const result = await res.json();
+      if (result.status === "201") {
+        localStorage.setItem('accessToken', result.data.accessToken);
+        localStorage.setItem('refreshToken', result.data.refreshToken);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
+  async function logout() {
+    if (!confirm('로그아웃 하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`${DEV_DOMAIN}/api/v1/auth/logout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+        // body 없음!
+      });
+
+      const result = await res.json();
+
+      if (res.ok && result.code === "NO_CONTENT") {
+        localStorage.clear();
+        alert('로그아웃 완료');
+        window.location.href = '/view/login';
+      } else {
+        showError(`로그아웃 실패: ${result.message || '알 수 없는 오류'}`);
+      }
+    } catch (err) {
+      console.error(err);
+      showError('로그아웃 오류: ' + err.message);
+    }
+  }
+
+  // -------------------------------
+  // 화면 표시
+  // -------------------------------
+  function showMainContent(accessToken, refreshToken) {
+    document.getElementById('loadingMessage').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+    document.getElementById('accessTokenDisplay').textContent = accessToken;
+    document.getElementById('refreshTokenDisplay').textContent = refreshToken;
+    document.getElementById('loginTime').textContent = new Date().toLocaleString('ko-KR');
+    document.getElementById('userIdDisplay').textContent = userId;
+  }
+
+  // -------------------------------
+  // JWT 파싱
+  // -------------------------------
+  function parseJwt(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(decodeURIComponent(atob(base64).split('').map(c =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    ).join('')));
+  }
+
+  // -------------------------------
+  // 에러 / 로그인 리다이렉트
+  // -------------------------------
+  function showError(msg) {
+    const div = document.getElementById('errorMessage');
+    div.textContent = msg;
+    div.style.display = 'block';
+    setTimeout(() => div.style.display = 'none', 5000);
+  }
+
+  function redirectToLogin(msg) {
+    localStorage.clear();
+    alert(msg);
+    window.location.href = '/view/login';
+  }
+</script>
+</body>
+</html>
