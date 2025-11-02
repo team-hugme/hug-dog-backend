@@ -1,8 +1,7 @@
 package spring.hugme.global.error.exceptions;
 
-
 import lombok.extern.slf4j.Slf4j;
-import spring.hugme.infra.response.ResponseCode;
+import spring.hugme.global.response.ResponseCode;
 
 @Slf4j
 public class AuthApiException extends CommonException {
