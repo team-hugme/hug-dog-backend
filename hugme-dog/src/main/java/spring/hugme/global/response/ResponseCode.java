@@ -18,7 +18,7 @@ public enum ResponseCode {
     INVALID_ACCESS_TOKEN("4014", HttpStatus.UNAUTHORIZED, "Invalid access token"),
     MISMATCH_TOKEN("4015", HttpStatus.UNAUTHORIZED,  "Mismatch token"),
     REFRESH_TOKEN_EXPIRED("4016", HttpStatus.UNAUTHORIZED, "Refresh token expired, please login again"),
-    TOKEN_EXPIRED("4017", HttpStatus.FORBIDDEN, "Access Token has expired."),
+    TOKEN_EXPIRED("4017", HttpStatus.UNAUTHORIZED, "Access Token has expired."),
     FAILED_TOKEN_PARSE("4018", HttpStatus.UNAUTHORIZED, "Failed token parse"),
     NOT_EXIST_PRE_AUTH_CREDENTIAL("4019", HttpStatus.UNAUTHORIZED, "No authentication credentials were found in the request."),
 

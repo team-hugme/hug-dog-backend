@@ -25,25 +25,21 @@ public class SecurityConfig {
         log.info("SecurityFilterChain 설정 시작");
 
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> {
-                    log.info("URL 권한 설정");
-                    auth
-                            // 페이지 경로는 모두 허용 (JavaScript에서 토큰 검증)
-                            .requestMatchers(
-                                    "/",
-                                    "/css/**",
-                                    "/js/**",
-                                    "/images/**"
-                            ).permitAll()
-                            // API 경로만 인증 필요
-                            .requestMatchers("/v1/api/**").authenticated()
-                            // 나머지는 인증 필요
-                            .anyRequest().authenticated();
-                })
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(
+                session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/", "/view/**", "/css/**", "/js/**", "/images/**").permitAll()
+
+                .requestMatchers(
+                    "/api/v1/auth/login",
+                    "/api/v1/auth/signup",
+                    "/api/v1/auth/reissue/**"
+                ).permitAll()
+                .requestMatchers("/api/**").authenticated()
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         log.info("SecurityFilterChain 설정 완료");
         return http.build();

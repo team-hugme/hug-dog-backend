@@ -30,14 +30,12 @@ public class JwtProvider {
     private static final Duration ACCESS_EXPIRE = Duration.ofMinutes(15);
     private static final Duration REFRESH_EXPIRE = Duration.ofDays(7);
 
-    /**  1. 사용자별 서명 키를 생성하고 Redis에 저장 */
     public void generateAndStoreKey(String userId) {
         SecretKey key = Jwts.SIG.HS256.key().build();
         redisTemplate.opsForValue()
             .set("JWT_KEY:" + userId, Encoders.BASE64.encode(key.getEncoded()));
     }
 
-    /**  2. Redis에서 해당 사용자의 서명 키 조회 */
     private SecretKey getKey(String userId) {
         String base64Key = redisTemplate.opsForValue().get("JWT_KEY:" + userId);
         if (base64Key == null) throw new AuthApiException(ResponseCode.INVALID_TOKEN);
@@ -45,7 +43,6 @@ public class JwtProvider {
         return Keys.hmacShaKeyFor(decoded);
     }
 
-    /**  3. AccessToken / RefreshToken 생성 */
     public String generateAccessToken(String userId) {
         return generateToken(userId, ACCESS_EXPIRE);
     }
@@ -68,8 +65,7 @@ public class JwtProvider {
             .compact();
     }
 
-    /**  4. userId를 알고 있을 때 (RefreshToken 검증용) */
-    public String validateToken(String userId, String token) {
+    public String validateRefreshToken(String userId, String token) {
         try {
             SecretKey key = getKey(userId);
             return Jwts.parser()
@@ -85,13 +81,10 @@ public class JwtProvider {
         }
     }
 
-    /**  5. userId를 모를 때 (AccessToken 검증용 - 필터 등) */
-    public String validateToken(String token) {
+    public String validateAccessToken(String token) {
         try {
-            //  토큰에서 userId 추출
             String userId = extractUserIdFromToken(token);
 
-            // userId 기반으로 키 가져와 검증
             SecretKey key = getKey(userId);
             Jwts.parser()
                 .verifyWith(key)
@@ -106,7 +99,6 @@ public class JwtProvider {
         }
     }
 
-    /**  6. JWT Payload에서 userId(subject) 추출 (서명 검증 없이) */
     private String extractUserIdFromToken(String token) {
         try {
             String[] parts = token.split("\\.");
