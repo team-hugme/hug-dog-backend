@@ -47,7 +47,7 @@ class JwtAuthIntegrationTest {
         userRepository.deleteAll();
         redisService.deleteRefreshToken(TEST_USERID);
 
-        testUser = Member.builder()
+        Member testUser = Member.builder()
             .userId(TEST_USERID)
             .password(passwordEncoder.encode(TEST_PASSWORD))
             .name("테스트유저")
