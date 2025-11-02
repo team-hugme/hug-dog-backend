@@ -1,4 +1,4 @@
-package spring.hugme.model.dto;
+package spring.hugme.domain.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

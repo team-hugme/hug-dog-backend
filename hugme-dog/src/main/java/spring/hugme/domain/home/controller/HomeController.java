@@ -8,7 +8,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String home() {
-        return "main";  // 루트 경로도 메인 페이지로
+        return "main";
     }
 
     // 메인 페이지

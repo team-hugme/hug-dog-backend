@@ -1,26 +1,40 @@
-package spring.hugme.model.entity;
+package spring.hugme.domain.user.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 @Entity
+@Table(name = "member")
+@EntityListeners(AuditingEntityListener.class)
 @Builder
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
-@Table(name = "member")
 public class UserEntity {
-
     @Id
-    private Long id;
+    @GeneratedValue
+    @JdbcTypeCode(SqlTypes.BINARY)
+    @Column(columnDefinition = "BINARY(16)", updatable = false, nullable = false)
+    private UUID id;
+
 
     @Column(name = "user_id", nullable = false, unique = true)
     private String userId;
@@ -43,9 +57,9 @@ public class UserEntity {
     @Column(name = "phone", length = 100)
     private String phone;
 
-    @Column(name = "is_active")
+    @Column(name = "active")
     @Builder.Default
-    private Boolean isActive = true;
+    private Boolean active = true;
 
     @Column(name = "reason_withdraw", length = 300)
     private String reasonWithdraw;
@@ -59,9 +73,8 @@ public class UserEntity {
     private LocalDateTime updateAt;
 
     // ========================
-    // 비밀번호 암호화 관련
+    // 비밀번호 체크
     // ========================
-
     public boolean checkPassword(org.springframework.security.crypto.password.PasswordEncoder passwordEncoder, String rawPassword) {
         return passwordEncoder.matches(rawPassword, this.password);
     }
