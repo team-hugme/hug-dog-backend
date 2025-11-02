@@ -1,8 +1,7 @@
 package spring.hugme.global.error;
 
-import spring.hugme.global.error.exceptions.AuthApiException;
-import spring.hugme.global.response.CommonApiResponse;
-import spring.hugme.global.response.ResponseCode;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,15 +11,14 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.HashMap;
-import java.util.Map;
+import spring.hugme.global.error.exceptions.AuthApiException;
+import spring.hugme.global.response.CommonApiResponse;
+import spring.hugme.global.response.ResponseCode;
 
 @ControllerAdvice
 @Slf4j
 public class AuthExceptionAdvice {
 
-    // AuthApiException 처리
     @ExceptionHandler(AuthApiException.class)
     @ResponseBody
     public ResponseEntity<CommonApiResponse<String>> handleAuthException(AuthApiException ex) {
@@ -31,7 +29,6 @@ public class AuthExceptionAdvice {
                 .body(CommonApiResponse.error(ex.code(), message, null));
     }
 
-    // Spring Security AuthenticationException 처리
     @ExceptionHandler(AuthenticationException.class)
     @ResponseBody
     public ResponseEntity<CommonApiResponse<String>> handleAuthenticationException(AuthenticationException ex) {
@@ -45,7 +42,6 @@ public class AuthExceptionAdvice {
                 ));
     }
 
-    // Validation 에러 처리 (회원가입 등에서 @Valid 사용 시)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
     public ResponseEntity<CommonApiResponse<Map<String, String>>> handleValidationException(
@@ -68,7 +64,6 @@ public class AuthExceptionAdvice {
                 ));
     }
 
-    // IllegalArgumentException 처리
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseBody
     public ResponseEntity<CommonApiResponse<String>> handleIllegalArgumentException(IllegalArgumentException ex) {
@@ -82,7 +77,6 @@ public class AuthExceptionAdvice {
                 ));
     }
 
-    // 기타 모든 예외 처리
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public ResponseEntity<CommonApiResponse<String>> handleException(Exception ex) {

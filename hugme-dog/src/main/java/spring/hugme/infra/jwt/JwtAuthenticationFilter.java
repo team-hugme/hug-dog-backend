@@ -29,7 +29,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper;
-    // 인증 제외 URL
     private static final List<String> EXCLUDE_URLS = Arrays.asList(
         "/",
         "/main",
@@ -53,7 +52,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
         log.info("JWT Filter 처리: {} {}", request.getMethod(), requestURI);
 
-        // 인증 제외 URL이면 JWT 검사 없이 통과
         if (isExcludedUrl(requestURI)) {
             log.info("인증 제외 경로: {}", requestURI);
             filterChain.doFilter(request, response);
@@ -87,17 +85,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        // SecurityConfig에서 인증 여부 판단하도록 위임
         filterChain.doFilter(request, response);
     }
 
-    // AntPathMatcher를 사용한 정확한 패턴 매칭
     private boolean isExcludedUrl(String requestURI) {
         return EXCLUDE_URLS.stream()
             .anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
     }
 
-    // 토큰 검증 실패 처리
     private void handleAuthException(HttpServletResponse response, AuthApiException ex)
         throws IOException {
         switch (ex.getCode()) {
@@ -123,7 +118,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    // 공통 에러 응답
     private void sendErrorResponse(HttpServletResponse response, ResponseCode code, String message)
         throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

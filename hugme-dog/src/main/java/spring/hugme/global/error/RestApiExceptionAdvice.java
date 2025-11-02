@@ -2,7 +2,6 @@ package spring.hugme.global.error;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +18,6 @@ import spring.hugme.global.response.ResponseCode;
 @Slf4j
 public class RestApiExceptionAdvice {
 
-    /** 유효성 검증 예외 처리 */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<CommonApiResponse<Map<String, String>>> handleValidationException(MethodArgumentNotValidException ex) {
         log.error("[Validation Error] {}", ex.getMessage(), ex);
@@ -32,7 +30,6 @@ public class RestApiExceptionAdvice {
                 .body(CommonApiResponse.error(ResponseCode.BAD_REQUEST, "입력값이 올바르지 않습니다.", errors));
     }
 
-    /** 지원하지 않는 HTTP 메서드 */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<CommonApiResponse<String>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
         log.error("[Method Not Supported] {}", ex.getMessage(), ex);
@@ -42,7 +39,6 @@ public class RestApiExceptionAdvice {
                 .body(CommonApiResponse.error(ResponseCode.BAD_REQUEST, "허용되지 않은 요청 방식입니다.", ex.getMessage()));
     }
 
-    /** CommonException 처리 */
     @ExceptionHandler(CommonException.class)
     public ResponseEntity<CommonApiResponse<String>> handleCommonException(CommonException ex) {
         log.error("[CommonException] code: {}, message: {}", ex.code().code(), ex.code().message(), ex);
@@ -52,7 +48,6 @@ public class RestApiExceptionAdvice {
                 .body(CommonApiResponse.error(ex.code()));
     }
 
-    /**  인가 거부 */
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<CommonApiResponse<String>> handleAuthorizationDenied(AuthorizationDeniedException ex) {
         log.error("[Authorization Denied] {}", ex.getMessage(), ex);
@@ -62,7 +57,6 @@ public class RestApiExceptionAdvice {
                 .body(CommonApiResponse.error(ResponseCode.UNAUTHORIZED, "인증이 필요한 요청입니다.", null));
     }
 
-    /**  런타임 예외 */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<CommonApiResponse<String>> handleRuntimeException(RuntimeException ex) {
         log.error("[RuntimeException] {}", ex.getMessage(), ex);

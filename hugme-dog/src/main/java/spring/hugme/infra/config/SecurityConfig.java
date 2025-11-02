@@ -29,21 +29,16 @@ public class SecurityConfig {
             .sessionManagement(
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // 정적 리소스 및 뷰 허용
                 .requestMatchers("/", "/view/**", "/css/**", "/js/**", "/images/**").permitAll()
 
-                // 인증 제외 API
                 .requestMatchers(
                     "/api/v1/auth/login",
                     "/api/v1/auth/signup",
                     "/api/v1/auth/reissue/**"
                 ).permitAll()
-                // 그 외 API 요청은 인증 필요
                 .requestMatchers("/api/**").authenticated()
-                // 그 외 API 요청은 인증 필요
                 .anyRequest().authenticated()
             )
-            // JWT 필터 등록
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         log.info("SecurityFilterChain 설정 완료");
