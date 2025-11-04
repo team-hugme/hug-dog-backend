@@ -1,6 +1,8 @@
 package spring.hugme.domain.community.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,6 +24,7 @@ public class Board extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long boardId;
 
+  @Enumerated(EnumType.STRING)
   private BoardAlias type;
 
 

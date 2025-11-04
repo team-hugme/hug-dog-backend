@@ -1,5 +1,6 @@
 package spring.hugme.domain.community.dto;
 
+import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +16,11 @@ public class BoardListResponse {
   Long postId;
 
   Long boarId;
+
+  String nickname;
+
+  List<TagInfo> tag;
+
 
   String title;
 

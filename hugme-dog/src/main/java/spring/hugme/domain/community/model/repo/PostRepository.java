@@ -11,9 +11,16 @@ import spring.hugme.domain.community.entity.Post;
 public interface PostRepository extends JpaRepository<Post, Long> {
 
 
-  @Query("SELECT p FROM Post p JOIN FETCH p.board b JOIN FETCH p.member WHERE b = :board")
+  @Query("SELECT DISTINCT p FROM Post p "
+      + "JOIN FETCH p.board b "
+      + "JOIN FETCH p.member m "
+      + "LEFT JOIN FETCH p.hashtagList ph WHERE b = :board")
   List<Post> findAllByBoardWithBoardAndMember(Board board);
 
-  @Query("SELECT p FROM Post p JOIN FETCH p.board JOIN FETCH p.member")
-  List<Post> findAllWithBoardAndMember();
+
+  @Query("SELECT DISTINCT p FROM Post p " +
+      "JOIN FETCH p.board b " +
+      "JOIN FETCH p.member m " +
+      "LEFT JOIN FETCH p.hashtagList ph")
+  List<Post> findAllWithAllRelations();
 }

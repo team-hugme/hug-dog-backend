@@ -21,7 +21,7 @@ public class PostHashtag {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int hashtagId;
+  private Long hashtagId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "post_id")

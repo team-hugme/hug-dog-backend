@@ -21,7 +21,7 @@ import spring.hugme.infra.entity.BaseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Like extends BaseEntity {
+public class Favorite extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +35,7 @@ public class Like extends BaseEntity {
   @JoinColumn(name = "post_id")
   private Post post;
 
-  @OneToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   private Member member;
 
