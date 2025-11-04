@@ -23,4 +23,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
       "JOIN FETCH p.member m " +
       "LEFT JOIN FETCH p.hashtagList ph")
   List<Post> findAllWithAllRelations();
+
+  @Query("SELECT DISTINCT p FROM Post p " +
+      "JOIN FETCH p.board b " +
+      "JOIN FETCH p.member m " +
+      "LEFT JOIN FETCH p.hashtagList ph WHERE p.postId = :postId")
+  Post findByPostIdWithAllRelations(Long postId);
 }
