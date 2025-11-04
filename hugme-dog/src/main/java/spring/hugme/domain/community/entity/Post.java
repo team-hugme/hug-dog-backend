@@ -49,6 +49,7 @@ public class Post extends BaseEntity {
   private int likeCount;
 
   @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+  @Builder.Default
   private List<PostHashtag> hashtagList = new ArrayList<>();
 
 
