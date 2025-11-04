@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import spring.hugme.domain.community.code.BoardAlias;
 import spring.hugme.domain.community.dto.BoardListResponse;
+import spring.hugme.domain.community.dto.PostDetailResponse;
 import spring.hugme.domain.community.dto.TagInfo;
 import spring.hugme.domain.community.entity.Board;
 import spring.hugme.domain.community.entity.Post;
@@ -24,6 +25,7 @@ public class CommunityService {
 
   private final PostRepository postRepository;
   private final BoardRepository boardRepository;
+  private final PostHashTagRepository postHashTagRepository;
 
 
   public List<BoardListResponse> BoardAllList () {
@@ -97,6 +99,41 @@ public class CommunityService {
         .collect(Collectors.toList());
 
     return  boardList;
+
+  }
+
+  public PostDetailResponse PostDetailView(Long postId) {
+
+    Post post = postRepository.findByPostIdWithAllRelations(postId);
+
+    List<PostHashtag> postHashtags = postHashTagRepository.findAllByPost(post);
+
+    List<TagInfo> tagInfos = postHashtags.stream()
+        .map(tag ->
+            TagInfo.builder()
+                .tagId(tag.getHashtagId())
+                .tagName(tag.getHashtagContent())
+                .build()
+        )
+        .toList();
+
+    PostDetailResponse postDetailResponse = PostDetailResponse.builder()
+        .userId(post.getMember().getId())
+        .postId(postId)
+        .boarId(post.getBoard().getBoardId())
+        .type(post.getBoard().getType())
+        .nickname(post.getMember().getName())
+        .tag(tagInfos)
+        .title(post.getTitle())
+        .content(post.getContent())
+        .commentCount(post.getCommentCount())
+        .likeCount(post.getLikeCount())
+        .createdAt(post.getCreatedAt())
+        .updatedAt(post.getModifiedAt())
+        .build();
+
+    return postDetailResponse;
+
 
   }
 }
