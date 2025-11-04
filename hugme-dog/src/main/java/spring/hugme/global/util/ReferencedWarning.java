@@ -1,4 +1,4 @@
-package spring.hugme.global.util;
+package spring.hugme.global.error.exceptions;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -21,8 +21,8 @@ public class ReferencedWarning {
         String message = key;
         if (!params.isEmpty()) {
             message += "," + params.stream()
-                    .map(Object::toString)
-                    .collect(Collectors.joining(","));
+                .map(Object::toString)
+                .collect(Collectors.joining(","));
         }
         return message;
     }

@@ -1,11 +1,17 @@
 package spring.hugme.global.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.stereotype.Controller;
 
 /**
- * 모든 Controller 의 공통 prefix 를 정의하는 상위 클래스
+ * API Controller의 기본 클래스 모든 API 컨트롤러는 BaseApiController를 상속받아 /api/v1 prefix를 공통 적용한다.
  */
-@RequestMapping("/api/v1/*")
+@Controller
 public abstract class BaseController {
+
+    public static final String API_V1 = "/api/v1";
+
+    // 상속용 protected 생성자
+    protected BaseController() {
+    }
 
 }
