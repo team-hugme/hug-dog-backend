@@ -27,7 +27,6 @@ class JwtProviderTest {
 
     @BeforeEach
     void setUp() {
-        // JWT Key 생성 및 저장
         jwtProvider.generateAndStoreKey(testUserId);
     }
 
@@ -78,7 +77,7 @@ class JwtProviderTest {
         String token = jwtProvider.generateAccessToken(testUserId);
 
         // when
-        String extractedUserId = jwtProvider.validateRefreshToken(testUserId, token);
+        Long extractedUserId = jwtProvider.validateToken(testUserId, token);
 
         // then
         assertThat(extractedUserId).isEqualTo(testUserId);
