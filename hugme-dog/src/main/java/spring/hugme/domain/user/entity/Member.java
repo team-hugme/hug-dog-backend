@@ -51,9 +51,6 @@ public class Member extends BaseEntity {
 
     private String reasonWithdraw;
 
-    // ========================
-    // 비밀번호 체크
-    // ========================
     public boolean checkPassword(
         org.springframework.security.crypto.password.PasswordEncoder passwordEncoder,
         String rawPassword) {
