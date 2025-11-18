@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import spring.hugme.global.code.BoardAlias;
+import spring.hugme.domain.community.dto.BoardListResponse;
+import spring.hugme.domain.community.dto.PostDetailResponse;
 import org.springframework.web.multipart.MultipartFile;
 import spring.hugme.domain.community.code.BoardAlias;
 import spring.hugme.domain.community.dto.response.BoardListResponse;
@@ -20,6 +23,7 @@ import spring.hugme.domain.community.dto.response.PostDetailResponse;
 import spring.hugme.domain.community.dto.request.PostWriteRequest;
 import spring.hugme.domain.community.dto.response.PostWriteResponse;
 import spring.hugme.domain.community.model.service.CommunityService;
+import spring.hugme.global.controller.BaseController;
 import spring.hugme.domain.image.service.ImageService;
 import spring.hugme.domain.user.entity.Member;
 import spring.hugme.domain.user.service.MemberService;
@@ -28,8 +32,8 @@ import spring.hugme.global.response.ResponseCode;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping(BaseController.API_V1 + "/community/posts", produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
-@RequestMapping(value = "/api/v1/community/posts", produces = MediaType.APPLICATION_JSON_VALUE)
 public class communityController {
 
   private final CommunityService communityService;

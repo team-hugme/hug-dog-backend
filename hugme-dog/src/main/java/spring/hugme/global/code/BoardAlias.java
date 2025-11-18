@@ -1,7 +1,6 @@
-package spring.hugme.domain.community.code;
+package spring.hugme.global.code;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 public enum BoardAlias {
 

@@ -29,7 +29,7 @@ public class ReactionService {
     Post post = postRepository.findById(postId)
         .orElseThrow(() -> new NotFoundException("해당 게시물 아이디는 존재하지 않습니다."));
 
-    List<Comments> commentsList = commentRepository.findAllByPost(post);
+    List<Comments> commentsList = commentRepository.findAllCommentsWithMemberByPost(post);
 
     List<CommentListResponse> commentListResponses= commentsList.stream()
         .map( comment ->

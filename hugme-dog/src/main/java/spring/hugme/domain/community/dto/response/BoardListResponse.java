@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Data;
-import spring.hugme.domain.community.code.BoardAlias;
+import spring.hugme.global.code.BoardAlias;
 import spring.hugme.domain.community.dto.TagInfo;
 
 @Data
@@ -27,9 +27,9 @@ public class BoardListResponse {
 
   String content;
 
-  int likeCount;
+  Long likeCount;
 
-  int commentCount;
+  Long commentCount;
 
 
 }
