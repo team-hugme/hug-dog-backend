@@ -3,7 +3,8 @@ package spring.hugme.domain.community.dto.response;
 
 import lombok.Builder;
 import lombok.Data;
-import spring.hugme.domain.community.code.BoardAlias;
+import spring.hugme.global.code.BoardAlias;
+
 
 @Data
 @Builder

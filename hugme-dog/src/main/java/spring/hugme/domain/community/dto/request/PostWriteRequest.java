@@ -3,7 +3,8 @@ package spring.hugme.domain.community.dto.request;
 import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import spring.hugme.domain.community.code.BoardAlias;
+import spring.hugme.global.code.BoardAlias;
+
 
 @Data
 @NoArgsConstructor
