@@ -2,24 +2,40 @@ package spring.hugme.domain.community.controller;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import spring.hugme.domain.community.code.BoardAlias;
-import spring.hugme.domain.community.dto.BoardListResponse;
-import spring.hugme.domain.community.dto.PostDetailResponse;
+import spring.hugme.domain.community.dto.response.BoardListResponse;
+import spring.hugme.domain.community.dto.response.PostDetailResponse;
+import spring.hugme.domain.community.dto.request.PostWriteRequest;
+import spring.hugme.domain.community.dto.response.PostWriteResponse;
 import spring.hugme.domain.community.model.service.CommunityService;
+import spring.hugme.domain.image.service.ImageService;
+import spring.hugme.domain.user.entity.Member;
+import spring.hugme.domain.user.service.MemberService;
 import spring.hugme.global.response.CommonApiResponse;
 import spring.hugme.global.response.ResponseCode;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/community/posts")
+@Slf4j
+@RequestMapping(value = "/api/v1/community/posts", produces = MediaType.APPLICATION_JSON_VALUE)
 public class communityController {
 
   private final CommunityService communityService;
+  private final ImageService imageService;
+  private final MemberService memberService;
+
 
   //전체 조회
   @GetMapping
@@ -57,6 +73,50 @@ public class communityController {
         postDetailInfo
     );
   }
+  //글작성시 이미지 보내주는거
+  @PostMapping("/images")
+  public CommonApiResponse<?> uploadImages(
+      @RequestParam("images") List<MultipartFile> images) {
+    // Service 에서 모든 유효성 검사 및 예외 처리를 담당
+    // 여기서 예외가 발생하면 GlobalExceptionHandler 가 처리
+    List<String> urls = imageService.upload(images);
 
+    // 성공 응답은 ApiResponse 포맷으로 반환
+    return CommonApiResponse.success(
+        ResponseCode.OK,
+        "정상적으로 이미지가 생성됩니다",
+        urls
+    );
+  }
+
+  //글 작성
+  @PostMapping("/detail")
+  public CommonApiResponse<PostWriteResponse> PostWrite(@RequestBody final PostWriteRequest postWriteRequest, @AuthenticationPrincipal String userId){
+
+    Member member = memberService.findByUserId(userId);
+
+    PostWriteResponse response = communityService.PostWrite(member, postWriteRequest);
+
+    return CommonApiResponse.success(
+        ResponseCode.OK,
+        "정상적으로 커뮤니티 글이 생성되었습니다 ",
+        response
+    );
+
+  }
+
+  //글 수정
+  @PatchMapping("detail/{postId}")
+  public CommonApiResponse<String> PostModify(@RequestBody final PostWriteRequest postWriteRequest,@AuthenticationPrincipal String userId, @PathVariable Long postId){
+
+    communityService.PostModify(postWriteRequest, userId, postId);
+
+
+    return CommonApiResponse.success(
+        ResponseCode.NO_CONTENT,
+        "정상적으로 커뮤니티글이 수정되었습니다."
+    );
+
+  }
 
 }
