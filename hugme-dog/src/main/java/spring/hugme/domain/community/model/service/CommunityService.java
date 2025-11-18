@@ -1,23 +1,25 @@
 package spring.hugme.domain.community.model.service;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import spring.hugme.domain.community.code.BoardAlias;
 import spring.hugme.domain.community.dto.response.BoardListResponse;
 import spring.hugme.domain.community.dto.response.PostDetailResponse;
 import spring.hugme.domain.community.dto.request.PostWriteRequest;
 import spring.hugme.domain.community.dto.response.PostWriteResponse;
 import spring.hugme.domain.community.dto.PostListProjection;
+import spring.hugme.domain.community.entity.Favorite;
+import spring.hugme.domain.community.model.repo.FavoriteRepository;
+import spring.hugme.domain.user.repository.UserRepository;
 import spring.hugme.global.code.BoardAlias;
-import spring.hugme.domain.community.dto.BoardListResponse;
-import spring.hugme.domain.community.dto.PostDetailResponse;
 import spring.hugme.domain.community.dto.TagInfo;
 import spring.hugme.domain.community.entity.Board;
 import spring.hugme.domain.community.entity.Post;
@@ -39,6 +41,8 @@ public class CommunityService {
   private final BoardRepository boardRepository;
   private final PostHashTagRepository postHashTagRepository;
   private final PostImageRepository postImageRepository;
+  private final FavoriteRepository favoriteRepository;
+  private final UserRepository memberRepository;
 
   @Value("${upload.path}")
   private String uploadPath;
@@ -78,7 +82,7 @@ public class CommunityService {
     return toBoardListResponse(postList);
   }
 
-  public PostDetailResponse PostDetailView(Long postId) {
+  public PostDetailResponse PostDetailView(Long postId, Optional member) {
 
     Post post = postRepository.findByPostIdWithAllRelations(postId);
 
@@ -95,6 +99,18 @@ public class CommunityService {
         .toList();
 
     PostListProjection counts = postRepository.findCountsByPostId(postId);
+    boolean liketrue = false;
+
+    if (member.isPresent()) {
+      // 로그인된 사용자일 때만 좋아요 상태를 확인합니다.
+      Member loginMember = (Member) member.get();
+
+      Favorite favorite = favoriteRepository.findByMemberAndPost(loginMember, post);
+
+      if (favorite != null) {
+        liketrue = favorite.getActivated();
+      }
+    }
 
     PostDetailResponse postDetailResponse = PostDetailResponse.builder()
         .userId(post.getMember().getId())
@@ -109,6 +125,7 @@ public class CommunityService {
         .likeCount(counts.getLikeCount())
         .createdAt(post.getCreatedAt())
         .updatedAt(post.getModifiedAt())
+        .liketrue(liketrue)
         .build();
 
     return postDetailResponse;
@@ -194,16 +211,24 @@ public class CommunityService {
     return path.substring(path.lastIndexOf('/') + 1);
   }
 
+  @Transactional
   public void PostModify(PostWriteRequest request, String userId, Long postId) {
 
     Post post = postRepository.findById(postId)
         .orElseThrow(() -> new NotFoundException("해당 게시물이 존재하지 않습니다"));
+
+
+
+    postHashTagRepository.deleteAllByPost(post);
+
+    postImageRepository.deleteAllByPost(post);
 
     post.setContent(request.getContent());
     post.setTitle(request.getTitle());
 
     if(request.getHashTagContent() != null){
       for(String postHashTag : request.getHashTagContent()){
+
         PostHashtag postHashtag = PostHashtag.builder()
             .post(post)
             .hashtagContent(postHashTag)
