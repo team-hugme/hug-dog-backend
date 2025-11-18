@@ -1,6 +1,8 @@
 package spring.hugme.domain.community.controller;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -13,11 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import spring.hugme.domain.user.repository.UserRepository;
 import spring.hugme.global.code.BoardAlias;
-import spring.hugme.domain.community.dto.BoardListResponse;
-import spring.hugme.domain.community.dto.PostDetailResponse;
 import org.springframework.web.multipart.MultipartFile;
-import spring.hugme.domain.community.code.BoardAlias;
 import spring.hugme.domain.community.dto.response.BoardListResponse;
 import spring.hugme.domain.community.dto.response.PostDetailResponse;
 import spring.hugme.domain.community.dto.request.PostWriteRequest;
@@ -32,13 +32,14 @@ import spring.hugme.global.response.ResponseCode;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(BaseController.API_V1 + "/community/posts", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value =BaseController.API_V1 + "/community/posts", produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 public class communityController {
 
   private final CommunityService communityService;
   private final ImageService imageService;
   private final MemberService memberService;
+  private final UserRepository memberRepository;
 
 
   //전체 조회
@@ -67,9 +68,18 @@ public class communityController {
 
   //글 상세
   @GetMapping("/detail/{postId}")
-  public CommonApiResponse<PostDetailResponse> PostDetailView(@PathVariable Long postId){
+  public CommonApiResponse<PostDetailResponse> PostDetailView(@PathVariable Long postId, Principal principal){
 
-    PostDetailResponse postDetailInfo = communityService.PostDetailView(postId);
+
+    Optional<Member> currentUserMember = Optional.empty();
+
+    if (principal != null && !principal.getName().equals("anonymousUser")) {
+
+      String userId = principal.getName();
+      currentUserMember = memberRepository.findByUserId(userId);
+    }
+
+    PostDetailResponse postDetailInfo = communityService.PostDetailView(postId, currentUserMember);
 
     return CommonApiResponse.success(
         ResponseCode.OK,

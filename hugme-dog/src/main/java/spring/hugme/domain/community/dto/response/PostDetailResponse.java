@@ -38,4 +38,6 @@ public class PostDetailResponse {
   LocalDateTime createdAt;
 
   LocalDateTime updatedAt;
+
+  boolean liketrue;
 }
