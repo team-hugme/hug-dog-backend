@@ -22,6 +22,6 @@ public class CommentWriteResponse {
 
   LocalDateTime updatedAt;
 
-  int commentCount;
+  Long commentCount;
 
 }
