@@ -4,12 +4,14 @@ package spring.hugme.domain.community.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import spring.hugme.domain.community.code.BoardAlias;
+import spring.hugme.global.code.BoardAlias;
 
 @Data
 @Builder
+@AllArgsConstructor
 public class PostDetailResponse {
   BoardAlias type;
 
@@ -28,9 +30,9 @@ public class PostDetailResponse {
 
   String content;
 
-  int likeCount;
+  Long likeCount;
 
-  int commentCount;
+  Long commentCount;
 
   LocalDateTime createdAt;
 

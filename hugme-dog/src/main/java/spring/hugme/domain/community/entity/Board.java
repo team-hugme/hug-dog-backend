@@ -10,7 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import spring.hugme.domain.community.code.BoardAlias;
+import spring.hugme.global.code.BoardAlias;
 import spring.hugme.infra.entity.BaseEntity;
 
 @Entity

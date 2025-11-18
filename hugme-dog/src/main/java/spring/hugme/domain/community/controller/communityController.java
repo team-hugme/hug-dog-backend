@@ -7,16 +7,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import spring.hugme.domain.community.code.BoardAlias;
+import spring.hugme.global.code.BoardAlias;
 import spring.hugme.domain.community.dto.BoardListResponse;
 import spring.hugme.domain.community.dto.PostDetailResponse;
 import spring.hugme.domain.community.model.service.CommunityService;
+import spring.hugme.global.controller.BaseController;
 import spring.hugme.global.response.CommonApiResponse;
 import spring.hugme.global.response.ResponseCode;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/community/posts")
+@RequestMapping(BaseController.API_V1 + "/community/posts")
 public class communityController {
 
   private final CommunityService communityService;

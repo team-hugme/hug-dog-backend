@@ -9,12 +9,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import spring.hugme.domain.community.dto.CommentListResponse;
 import spring.hugme.domain.community.model.service.ReactionService;
+import spring.hugme.global.controller.BaseController;
 import spring.hugme.global.response.CommonApiResponse;
 import spring.hugme.global.response.ResponseCode;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/community/posts")
+@RequestMapping(BaseController.API_V1 + "/community/posts")
 public class ReactionController {
 
   private final ReactionService reactionService;

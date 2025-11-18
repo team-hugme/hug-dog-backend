@@ -42,12 +42,6 @@ public class Post extends BaseEntity {
 
   private String content;
 
-  @Formula("(SELECT COUNT(*) FROM comments l WHERE l.post_id = post_id)")
-  private int commentCount;
-
-  @Formula("(SELECT COUNT(*) FROM favorite l WHERE l.post_id = post_id)")
-  private int likeCount;
-
   @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
   @Builder.Default
   private List<PostHashtag> hashtagList = new ArrayList<>();

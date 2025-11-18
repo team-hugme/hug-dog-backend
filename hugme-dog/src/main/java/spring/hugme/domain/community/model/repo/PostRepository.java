@@ -6,27 +6,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import spring.hugme.domain.community.entity.Board;
 import spring.hugme.domain.community.entity.Post;
+import spring.hugme.domain.community.model.repo.custom.PostRepositoryCustom;
 
 @Repository
-public interface PostRepository extends JpaRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom {
 
 
-  @Query("SELECT DISTINCT p FROM Post p "
-      + "JOIN FETCH p.board b "
-      + "JOIN FETCH p.member m "
-      + "LEFT JOIN FETCH p.hashtagList ph WHERE b = :board")
-  List<Post> findAllByBoardWithBoardAndMember(Board board);
 
-
-  @Query("SELECT DISTINCT p FROM Post p " +
-      "JOIN FETCH p.board b " +
-      "JOIN FETCH p.member m " +
-      "LEFT JOIN FETCH p.hashtagList ph")
-  List<Post> findAllWithAllRelations();
-
-  @Query("SELECT DISTINCT p FROM Post p " +
-      "JOIN FETCH p.board b " +
-      "JOIN FETCH p.member m " +
-      "LEFT JOIN FETCH p.hashtagList ph WHERE p.postId = :postId")
-  Post findByPostIdWithAllRelations(Long postId);
 }
