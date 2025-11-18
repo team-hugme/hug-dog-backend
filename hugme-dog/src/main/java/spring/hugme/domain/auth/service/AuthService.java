@@ -3,6 +3,7 @@ package spring.hugme.domain.auth.service;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import spring.hugme.domain.auth.dto.request.SignUpRequest.SignUp;
@@ -51,7 +52,6 @@ public class AuthService {
         if (!user.checkPassword(passwordEncoder, password))
             throw new AuthApiException(ResponseCode.BAD_CREDENTIAL);
 
-
         String accessToken = jwtProvider.generateAccessToken(user.getUserId());
         String refreshToken = jwtProvider.generateRefreshToken(user.getUserId());
 
@@ -82,20 +82,39 @@ public class AuthService {
     }
 
     public LoginResponse reissueRefreshTokens(String userId, String refreshToken) {
-            throw new AuthApiException(ResponseCode.INVALID_TOKEN);
+        // 1. JWT 서명 검증
         String validatedUserId = jwtProvider.validateRefreshToken(userId, refreshToken);
         if (!validatedUserId.equals(userId))
+            throw new AuthApiException(ResponseCode.INVALID_TOKEN);
 
+        // 3. Redis 검증
         validateRefreshToken(userId, refreshToken);
 
+        // 4. 새 토큰 생성
         String newAccessToken = jwtProvider.generateAccessToken(userId);
         String newRefreshToken = jwtProvider.generateRefreshToken(userId);
 
+        // 5. Redis 업데이트
         redisService.saveRefreshToken(userId, newRefreshToken);
 
         return new LoginResponse(newAccessToken, newRefreshToken);
     }
+
     public void logout(String userId) {
+        String authenticatedUserId = (String) SecurityContextHolder.getContext()
+            .getAuthentication()
+            .getPrincipal();
+
+        log.info("로그아웃 요청 - RequestUserId: {}, TokenUserId: {}", userId, authenticatedUserId);
+
+        // 2. 요청의 userId와 토큰의 userId 비교
+        if (!userId.equals(authenticatedUserId)) {
+            log.warn("토큰 주체와 요청된 사용자 불일치");
+            throw new AuthApiException(ResponseCode.MISMATCH_TOKEN);
+        }
+
+        // 3. (선택) RefreshToken 등 삭제 처리
         redisService.deleteRefreshToken(userId);
+        log.info("로그아웃 완료: {}", userId);
     }
 }
