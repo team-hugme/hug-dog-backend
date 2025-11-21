@@ -112,6 +112,12 @@ public class CommunityService {
       }
     }
 
+    List<PostImage> postImages = postImageRepository.findAllByPost(post);
+
+    List<String> postImageUrl = postImages.stream()
+        .map(postUrl -> postUrl.getSavePath())
+        .toList();
+
     PostDetailResponse postDetailResponse = PostDetailResponse.builder()
         .userId(post.getMember().getId())
         .postId(postId)
@@ -126,6 +132,7 @@ public class CommunityService {
         .createdAt(post.getCreatedAt())
         .updatedAt(post.getModifiedAt())
         .liketrue(liketrue)
+        .imageUrl(postImageUrl)
         .build();
 
     return postDetailResponse;
@@ -146,6 +153,10 @@ public class CommunityService {
 
           PostListProjection counts = postRepository.findCountsByPostId(post.getPostId());
 
+          Optional<PostImage> imageOpt = postImageRepository.findFirstByPost(post);
+
+          String imageUrl = imageOpt.map(PostImage::getSavePath)
+              .orElse("https://res.cloudinary.com/dyz2lq1f0/image/upload/v1763707069/post_uploads/m1ryt6ptdy6wyydp4yog.png");
           return BoardListResponse.builder()
               .boarId(post.getBoard().getBoardId())
               .userId(post.getMember().getId())
@@ -157,6 +168,7 @@ public class CommunityService {
               .type(post.getBoard().getType())
               .likeCount(counts.getLikeCount())
               .tag(tagInfoList)
+              .imageUrl(imageUrl)
               .build();
         })
         .collect(Collectors.toList());

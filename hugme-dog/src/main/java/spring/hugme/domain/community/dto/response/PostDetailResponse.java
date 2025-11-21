@@ -40,4 +40,6 @@ public class PostDetailResponse {
   LocalDateTime updatedAt;
 
   boolean liketrue;
+
+  List<String> imageUrl;
 }

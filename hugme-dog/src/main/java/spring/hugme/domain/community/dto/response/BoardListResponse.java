@@ -31,5 +31,7 @@ public class BoardListResponse {
 
   Long commentCount;
 
+  String imageUrl;
+
 
 }
