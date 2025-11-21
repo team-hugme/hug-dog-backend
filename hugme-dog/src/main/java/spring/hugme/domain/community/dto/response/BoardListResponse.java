@@ -1,10 +1,11 @@
-package spring.hugme.domain.community.dto;
+package spring.hugme.domain.community.dto.response;
 
 import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Data;
 import spring.hugme.global.code.BoardAlias;
+import spring.hugme.domain.community.dto.TagInfo;
 
 @Data
 @Builder
@@ -29,6 +30,8 @@ public class BoardListResponse {
   Long likeCount;
 
   Long commentCount;
+
+  String imageUrl;
 
 
 }

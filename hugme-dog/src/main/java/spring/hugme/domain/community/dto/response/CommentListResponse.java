@@ -1,4 +1,4 @@
-package spring.hugme.domain.community.dto;
+package spring.hugme.domain.community.dto.response;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
