@@ -17,9 +17,7 @@ import spring.hugme.domain.community.model.repo.FavoriteRepository;
 import spring.hugme.domain.community.model.repo.PostRepository;
 import spring.hugme.domain.user.entity.Member;
 import spring.hugme.domain.user.repository.UserRepository;
-import spring.hugme.global.response.CommonApiResponse;
-import spring.hugme.global.response.ResponseCode;
-import spring.hugme.global.util.NotFoundException;
+
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +31,7 @@ public class ReactionService {
   public List<CommentListResponse> CommentView(Long postId) {
 
     Post post = postRepository.findById(postId)
-        .orElseThrow(() -> new NotFoundException("해당 게시물 아이디는 존재하지 않습니다."));
+        .orElseThrow(() -> new EntityNotFoundException("해당 게시물 아이디는 존재하지 않습니다."));
 
     List<Comments> commentsList = commentRepository.findAllCommentsWithMemberByPost(post);
 
@@ -129,7 +127,7 @@ public class ReactionService {
       favorite.setActivated(false);
 
     }else{
-       throw new NotFoundException("해당 게시물에 좋아요를 누르지 않아 취소할수 없습니다.");
+       throw new EntityNotFoundException("해당 게시물에 좋아요를 누르지 않아 취소할수 없습니다.");
     }
 
   }
