@@ -29,6 +29,7 @@ public class AuthController extends BaseController {
 
     private final AuthService authService;
 
+    // 로그인
     @PostMapping("/login")
     public CommonApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
         log.info("로그인 요청: userId={}", request.getUserId());
@@ -36,6 +37,7 @@ public class AuthController extends BaseController {
         return CommonApiResponse.success(ResponseCode.OK, "정상적으로 로그인이 완료되었습니다.", response);
     }
 
+    // 회원가입
     @PostMapping("/signup")
     public CommonApiResponse<Map<String, String>> signup(
         @RequestBody @Valid SignUpRequest.SignUp dto) {
@@ -44,6 +46,7 @@ public class AuthController extends BaseController {
         return CommonApiResponse.success(ResponseCode.CREATED, "정상적으로 회원가입이 완료되었습니다.", data);
     }
 
+    // 인증된 사용자만 접근 가능
     @GetMapping("/verify")
     public CommonApiResponse<Map<String, Object>> verify(
         @AuthenticationPrincipal String userId
@@ -55,6 +58,9 @@ public class AuthController extends BaseController {
         return CommonApiResponse.success(ResponseCode.OK, "인증 완료", data);
     }
 
+    // -------------------------------
+    // Refresh Token 기반 토큰 재발급
+    // -------------------------------
     @PostMapping("/reissue/refresh")
     public CommonApiResponse<LoginResponse> reissueRefresh(@RequestBody ReissueRequest dto) {
         log.info("Refresh 토큰 재발급 요청: userId={}", dto.getUserId());
@@ -64,6 +70,9 @@ public class AuthController extends BaseController {
             "정상적으로 Refresh Token, Access Token이 재발급이 완료되었습니다.", response);
     }
 
+    // -------------------------------
+    // Access Token 재발급 (Refresh Token 필요 없음)
+    // -------------------------------
     @PostMapping("/reissue/access")
     public CommonApiResponse<Map<String, String>> reissueAccess(
         @RequestBody Map<String, String> dto) {
@@ -76,6 +85,7 @@ public class AuthController extends BaseController {
             Map.of("accessToken", newAccessToken));
     }
 
+    // AuthController.java
     @PostMapping("/logout")
     public CommonApiResponse<Void> logout(@AuthenticationPrincipal String tokenUserId) {
         log.info("로그아웃 요청: userId={}", tokenUserId);

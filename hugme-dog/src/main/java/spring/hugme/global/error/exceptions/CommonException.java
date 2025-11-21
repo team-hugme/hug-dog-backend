@@ -1,8 +1,8 @@
 package spring.hugme.global.error.exceptions;
 
+import spring.hugme.global.response.ResponseCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import spring.hugme.global.response.ResponseCode;
 
 @Slf4j
 @Getter

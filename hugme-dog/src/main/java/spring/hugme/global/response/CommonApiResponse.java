@@ -14,7 +14,9 @@ public record CommonApiResponse<T>(
         T data
 ) {
 
+    // ============ 성공 응답 ============
 
+    // 1. ResponseCode만 사용 (data 없음)
     public static <T> CommonApiResponse<T> success(ResponseCode responseCode) {
         return new CommonApiResponse<>(
                 responseCode.code(),      // "200"
@@ -24,6 +26,7 @@ public record CommonApiResponse<T>(
         );
     }
 
+    // 2. ResponseCode + 커스텀 메시지
     public static <T> CommonApiResponse<T> success(ResponseCode responseCode, String customMessage) {
         return new CommonApiResponse<>(
                 responseCode.code(),      // "200"
@@ -33,6 +36,7 @@ public record CommonApiResponse<T>(
         );
     }
 
+    // 3. ResponseCode + data
     public static <T> CommonApiResponse<T> success(ResponseCode responseCode, T data) {
         return new CommonApiResponse<>(
                 responseCode.code(),      //"200"
@@ -42,6 +46,7 @@ public record CommonApiResponse<T>(
         );
     }
 
+    // 4. ResponseCode + 커스텀 메시지 + data
     public static <T> CommonApiResponse<T> success(ResponseCode responseCode, String customMessage, T data) {
         return new CommonApiResponse<>(
                 responseCode.code(),      //"200"
@@ -51,6 +56,9 @@ public record CommonApiResponse<T>(
         );
     }
 
+    // ============ 실패 응답 ============
+
+    // 1. ResponseCode만 사용
     public static <T> CommonApiResponse<T> error(ResponseCode responseCode) {
         return new CommonApiResponse<>(
                 responseCode.code(),      // "4017"
@@ -60,6 +68,7 @@ public record CommonApiResponse<T>(
         );
     }
 
+    // 2. ResponseCode + 커스텀 메시지
     public static <T> CommonApiResponse<T> error(ResponseCode responseCode, String customMessage) {
         return new CommonApiResponse<>(
                 responseCode.code(),      // "4017"
@@ -69,6 +78,7 @@ public record CommonApiResponse<T>(
         );
     }
 
+    // 3. ResponseCode + data (에러 상세 정보)
     public static <T> CommonApiResponse<T> error(ResponseCode responseCode, T data) {
         return new CommonApiResponse<>(
                 responseCode.code(),      // "4017"
@@ -78,6 +88,7 @@ public record CommonApiResponse<T>(
         );
     }
 
+    // 4. ResponseCode + 커스텀 메시지 + data
     public static <T> CommonApiResponse<T> error(ResponseCode responseCode, String customMessage, T data) {
         return new CommonApiResponse<>(
                 responseCode.code(),      // "4017"
