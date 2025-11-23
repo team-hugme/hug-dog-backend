@@ -44,10 +44,12 @@
   <div id="signupSuccess" style="color:green; margin-top: 10px;"></div>
 </div>
 
-<script>
+<script th:inline="javascript">
+
   document.getElementById('signupForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
+    const DEV_DOMAIN = [[${devDomain}]]; // 개발 서버 도메인
     const userId = document.getElementById('userId').value;
     const password = document.getElementById('password').value;
     const email = document.getElementById('email').value;
@@ -65,7 +67,7 @@
     };
 
     try {
-      const response = await fetch('/v1/auth/signup', {
+      const response = await fetch(`${DEV_DOMAIN}/api/v1/auth/signup`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(signupData)
@@ -78,7 +80,7 @@
         document.getElementById('signupError').innerText = '';
 
         setTimeout(() => {
-          window.location.href = '/v1/auth/login';
+          window.location.href = '/view/login';
         }, 1500);
       } else {
         document.getElementById('signupError').innerText = `회원가입 실패: ${result.message}`;

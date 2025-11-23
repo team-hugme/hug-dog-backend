@@ -1,8 +1,12 @@
 package spring.hugme.domain.auth.service;
 
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,9 +29,6 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final RedisService redisService;
 
-    // -------------------------------
-    // 회원가입
-    // -------------------------------
     public Map<String, String> signup(SignUp dto) {
         if (userRepository.existsByUserId(dto.getUserId()))
             throw new AuthApiException(ResponseCode.CONFLICT_EXIST_USER);
@@ -48,91 +49,51 @@ public class AuthService {
         return Map.of("userId", dto.getUserId());
     }
 
-    // -------------------------------
-    // 로그인 (Access + Refresh 발급)
-    // -------------------------------
-    public LoginResponse login(String userId, String password) {
-        Member user = userRepository.findByUserId(userId)
+    public LoginResponse login(String userId, String password, HttpServletResponse response) {
+        Member storedUser = userRepository.findByUserId(userId)
             .orElseThrow(() -> new AuthApiException(ResponseCode.NOT_FOUND_USER));
 
-        if (!user.checkPassword(passwordEncoder, password))
+        if (!storedUser.checkPassword(passwordEncoder, password))
             throw new AuthApiException(ResponseCode.BAD_CREDENTIAL);
 
-        // 사용자별 서명 키 생성
-        jwtProvider.generateAndStoreKey(user.getUserId());
+        String accessToken = jwtProvider.generateAccessToken(storedUser.getUserId());
+        String refreshToken = jwtProvider.generateRefreshToken(storedUser.getUserId());
 
-        // 토큰 생성
-        String accessToken = jwtProvider.generateAccessToken(user.getUserId());
-        String refreshToken = jwtProvider.generateRefreshToken(user.getUserId());
+        redisService.saveRefreshToken(storedUser.getUserId(), refreshToken);
 
-        // Redis에 Refresh Token 저장
-        redisService.saveRefreshToken(user.getUserId(), refreshToken);
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+            .httpOnly(true)
+            .secure(true)
+            .path("/")
+            .maxAge(7 * 24 * 60 * 60)
+            .sameSite("Strict")
+            .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        return new LoginResponse(accessToken, refreshToken);
+        return new LoginResponse(accessToken);
+
     }
 
-    // -------------------------------
-    // Access Token 검증 (필터에서 호출)
-    // -------------------------------
-    public String validateAccessToken(String token) {
-        // JWT 서명 + 만료 검증 후 userId 반환
-        return jwtProvider.validateAccessToken(token);
-    }
-
-    // -------------------------------
-    // Access Token 재발급 (Refresh Token 필요 없음)
-    // -------------------------------
-    public String reissueAccessToken(String userId) {
-        // Redis에서 Refresh Token 존재 확인
-        String refreshToken = redisService.getRefreshToken(userId);
-        if (refreshToken == null) {
+    @Transactional
+    public LoginResponse reissueAccessToken(String refreshToken) {
+        String userId = jwtProvider.validateRefreshToken(refreshToken);
+        String storedRefreshToken = redisService.getRefreshToken(userId);
+        if (storedRefreshToken == null) {
             throw new AuthApiException(ResponseCode.REFRESH_TOKEN_EXPIRED);
         }
 
-        // 새 Access Token 생성
-        return jwtProvider.generateAccessToken(userId);
-    }
-
-    // -------------------------------
-    // Refresh Token 검증
-    // -------------------------------
-    public void validateRefreshToken(String userId, String refreshToken) {
-        String savedToken = redisService.getRefreshToken(userId);
-        if (savedToken == null || !savedToken.equals(refreshToken))
-            throw new AuthApiException(ResponseCode.REFRESH_TOKEN_EXPIRED);
-
-        // JWT 서명 검증
-        jwtProvider.validateRefreshToken(userId, refreshToken);
-    }
-
-    // -------------------------------
-    // Refresh Token 재발급 (Access + Refresh)
-    // -------------------------------
-    public LoginResponse reissueRefreshTokens(String userId, String refreshToken) {
-        // 1. JWT 서명 검증
-        String validatedUserId = jwtProvider.validateRefreshToken(userId, refreshToken);
-
-        // 2. userId 일치 확인
-        if (!validatedUserId.equals(userId))
-            throw new AuthApiException(ResponseCode.INVALID_TOKEN);
-
-        // 3. Redis 검증
-        validateRefreshToken(userId, refreshToken);
-
-        // 4. 새 토큰 생성
+        if (!refreshToken.equals(storedRefreshToken)) {
+            throw new AuthApiException(ResponseCode.MISMATCH_TOKEN);
+        }
         String newAccessToken = jwtProvider.generateAccessToken(userId);
-        String newRefreshToken = jwtProvider.generateRefreshToken(userId);
-
-        // 5. Redis 업데이트
-        redisService.saveRefreshToken(userId, newRefreshToken);
-
-        return new LoginResponse(newAccessToken, newRefreshToken);
+        return new LoginResponse(newAccessToken);
     }
 
-    // -------------------------------
-    // 로그아웃
-    // -------------------------------
-
+    /**
+     * 로그아웃
+     *
+     * @param userId
+     */
     public void logout(String userId) {
         String authenticatedUserId = (String) SecurityContextHolder.getContext()
             .getAuthentication()
@@ -140,13 +101,11 @@ public class AuthService {
 
         log.info("로그아웃 요청 - RequestUserId: {}, TokenUserId: {}", userId, authenticatedUserId);
 
-        // 2. 요청의 userId와 토큰의 userId 비교
         if (!userId.equals(authenticatedUserId)) {
             log.warn("토큰 주체와 요청된 사용자 불일치");
             throw new AuthApiException(ResponseCode.MISMATCH_TOKEN);
         }
 
-        // 3. (선택) RefreshToken 등 삭제 처리
         redisService.deleteRefreshToken(userId);
         log.info("로그아웃 완료: {}", userId);
     }
