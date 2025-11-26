@@ -43,35 +43,16 @@
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({userId, password})
       });
-
       const loginData = await loginRes.json();
 
       if (loginData.code === "OK") {
-        const {accessToken, refreshToken} = loginData.data;
-
-        // 토큰 localStorage에 저장
+        const {accessToken} = loginData.data;
         localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-
-        // 인증 검증
-        const verifyRes = await fetch(`${DEV_DOMAIN}/api/v1/auth/verify`, {
-          method: "GET",
-          headers: {
-            "Authorization": "Bearer " + accessToken,
-            "Accept": "application/json"
-          }
-        });
-
-        if (verifyRes.ok) {
-          // 인증 성공 시 홈 화면으로 이동
+        console.log('로그인 성공!');
           window.location.href = '/view/home';
-        } else {
-          const errorData = await verifyRes.json();
-          document.getElementById('loginError').innerText = '토큰 인증 실패: ' + (errorData.message
-              || '');
-        }
       } else {
         document.getElementById('loginError').innerText = `로그인 실패: ${loginData.message}`;
       }
