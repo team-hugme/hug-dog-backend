@@ -78,9 +78,6 @@ class JwtAuthIntegrationTest {
         }
     }
 
-    // -------------------------------
-    // 로그인 테스트
-    // -------------------------------
     @Test
     @DisplayName("로그인 성공 - JWT 토큰 발급")
     void testLoginSuccess() {
@@ -100,9 +97,6 @@ class JwtAuthIntegrationTest {
             .isThrownBy(() -> authService.login(TEST_USERID, "wrongPassword"));
     }
 
-    // -------------------------------
-    // Access / Refresh Token 검증
-    // -------------------------------
     @Test
     @DisplayName("Access Token 검증 성공")
     void testValidateAccessToken() {
@@ -147,9 +141,6 @@ class JwtAuthIntegrationTest {
         assertThat(userId).isEqualTo(TEST_USERID);
     }
 
-    // -------------------------------
-    // 로그아웃 테스트
-    // -------------------------------
     @Test
     @DisplayName("로그아웃 성공 - Refresh Token 삭제")
     void testLogoutSuccess() {
