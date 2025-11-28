@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.Formula;
 import spring.hugme.domain.user.entity.Member;
 import spring.hugme.infra.entity.BaseEntity;
@@ -24,6 +25,7 @@ import spring.hugme.infra.entity.BaseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Setter
 public class Post extends BaseEntity {
 
   @Id

@@ -79,6 +79,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.awaitility:awaitility:4.2.0'
+
+    //cloudinary
+    implementation 'com.cloudinary:cloudinary-http44:1.39.0'
 }
 
 // 트랜지티브 의존성 강제 적용
