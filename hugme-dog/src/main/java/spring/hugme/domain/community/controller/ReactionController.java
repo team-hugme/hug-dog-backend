@@ -39,7 +39,7 @@ public class ReactionController {
 
     return CommonApiResponse.success(
         ResponseCode.OK,
-        "정상적으로 댓글 목록이 성공적으로 불러와졌습니다.",
+        "정상적으로 댓글 목록이 불러와졌습니다.",
         commentListResponse
 
     );

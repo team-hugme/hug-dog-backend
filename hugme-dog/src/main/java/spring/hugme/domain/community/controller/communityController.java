@@ -58,7 +58,7 @@ public class communityController {
 
     return CommonApiResponse.success(
         ResponseCode.OK,
-        "커뮤니티 조회 성공",
+        "정상적으로 커뮤니티 조회를 성공하였습니다.",
         boardList
         );
 
@@ -83,7 +83,7 @@ public class communityController {
 
     return CommonApiResponse.success(
         ResponseCode.OK,
-        "커뮤니티 상세 조회 성공",
+        "정상적으로 커뮤니티 상세조회를 성공하였습니다.",
         postDetailInfo
     );
   }
