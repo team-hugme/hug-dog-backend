@@ -4,7 +4,6 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import spring.hugme.domain.community.dto.PostDetailResponse;
 import spring.hugme.domain.community.dto.PostListProjection;
 import spring.hugme.domain.community.entity.Board;
 import spring.hugme.domain.community.entity.Post;
@@ -12,8 +11,7 @@ import spring.hugme.domain.community.entity.QBoard;
 import spring.hugme.domain.community.entity.QComments;
 import spring.hugme.domain.community.entity.QFavorite;
 import spring.hugme.domain.community.entity.QPost;
-import spring.hugme.domain.community.entity.QPostHashtag;
-import spring.hugme.domain.user.entity.QMember;
+
 
 @RequiredArgsConstructor
 public class PostRepositoryImpl implements PostRepositoryCustom{
@@ -29,7 +27,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
         .join(p.board, b).fetchJoin()
         .join(p.member).fetchJoin()
         .leftJoin(p.hashtagList).fetchJoin()
-        .where(p.board.eq(board))
+        .where(p.board.eq(board)
+            .and(p.activated.eq(true)))
         .fetch();
   }
 
@@ -41,6 +40,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
         .join(p.board).fetchJoin()
         .join(p.member).fetchJoin()
         .leftJoin(p.hashtagList).fetchJoin()
+        .where(p.activated.eq(true))
         .fetch();
   }
 
@@ -70,11 +70,13 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
 
                 queryFactory.select(c.count())
                     .from(c)
-                    .where(c.post.eq(p)),
+                    .where(c.post.eq(p)
+                        .and(c.activated.eq(true))),
 
                 queryFactory.select(f.count())
                     .from(f)
-                    .where(f.post.eq(p))
+                    .where(f.post.eq(p)
+                        .and(f.activated.eq(true)))
             )
         )
         .from(p)

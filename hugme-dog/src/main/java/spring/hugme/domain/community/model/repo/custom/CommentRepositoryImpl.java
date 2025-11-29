@@ -22,7 +22,8 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom{
     return queryFactory
         .selectFrom(c)
         .join(c.member, m).fetchJoin()
-        .where(c.post.eq(post))
+        .where(c.post.eq(post)
+            .and(c.activated.eq(true)))
         .fetch();
 
 

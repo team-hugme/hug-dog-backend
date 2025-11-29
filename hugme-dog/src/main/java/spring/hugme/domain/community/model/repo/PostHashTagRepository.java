@@ -10,4 +10,7 @@ import spring.hugme.domain.community.entity.PostHashtag;
 public interface PostHashTagRepository extends JpaRepository<PostHashtag, Long> {
 
   List<PostHashtag> findAllByPost(Post post);
+
+
+  void deleteAllByPost(Post post);
 }

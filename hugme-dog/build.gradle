@@ -80,6 +80,9 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.awaitility:awaitility:4.2.0'
 
+    //cloudinary
+    implementation 'com.cloudinary:cloudinary-http44:1.39.0'
+
     //gemini
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.3.0'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.20.0'

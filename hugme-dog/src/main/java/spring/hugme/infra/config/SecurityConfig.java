@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -29,14 +30,16 @@ public class SecurityConfig {
             .sessionManagement(
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/view/**", "/css/**", "/js/**", "/images/**").permitAll()
-
                 .requestMatchers(
+                    "/", "/view/**",
                     "/api/v1/auth/login",
                     "/api/v1/auth/signup",
-                    "/api/v1/auth/reissue/**"
+                    "/api/v1/auth/reissue",
+                    "/css/**", "/js/**", "/images/**",
+                    "/api/v1/community/posts"
                 ).permitAll()
-                .requestMatchers("/api/**").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/v1/community/posts/detail/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/community/posts/**/comment").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

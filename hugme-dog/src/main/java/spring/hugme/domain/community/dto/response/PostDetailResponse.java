@@ -1,4 +1,4 @@
-package spring.hugme.domain.community.dto;
+package spring.hugme.domain.community.dto.response;
 
 
 import java.time.LocalDateTime;
@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import spring.hugme.global.code.BoardAlias;
+import spring.hugme.domain.community.dto.TagInfo;
 
 @Data
 @Builder
@@ -37,4 +38,8 @@ public class PostDetailResponse {
   LocalDateTime createdAt;
 
   LocalDateTime updatedAt;
+
+  boolean liketrue;
+
+  List<String> imageUrl;
 }
