@@ -30,6 +30,7 @@ import spring.hugme.domain.community.model.repo.PostHashTagRepository;
 import spring.hugme.domain.community.model.repo.PostImageRepository;
 import spring.hugme.domain.community.model.repo.PostRepository;
 import spring.hugme.domain.user.entity.Member;
+import spring.hugme.global.error.exceptions.NotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -73,7 +74,7 @@ public class CommunityService {
   public List<BoardListResponse> BoardTypeAllList(BoardAlias type) {
 
     Board board = boardRepository.findByType(type)
-        .orElseThrow(() -> new EntityNotFoundException("커뮤니티 타입 요청이 잘못되었습니다"));
+        .orElseThrow(() -> new NotFoundException("커뮤니티 타입 요청이 잘못되었습니다"));
 
     List<Post> postList = postRepository.findAllByBoardWithBoardAndMember(board);
 
@@ -177,7 +178,7 @@ public class CommunityService {
   public PostWriteResponse PostWrite(Member member, PostWriteRequest request) {
 
     Board board = boardRepository.findByType(request.getType())
-        .orElseThrow(() -> new EntityNotFoundException("해당 게시판이 존재하지 않습니다"));
+        .orElseThrow(() -> new NotFoundException("해당 게시판이 존재하지 않습니다"));
 
     Post post = Post.builder()
         .board(board)

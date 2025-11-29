@@ -18,6 +18,8 @@ import spring.hugme.domain.community.model.repo.PostRepository;
 import spring.hugme.domain.user.entity.Member;
 import spring.hugme.domain.user.repository.UserRepository;
 
+import spring.hugme.global.error.exceptions.NotFoundException;
+
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +33,7 @@ public class ReactionService {
   public List<CommentListResponse> CommentView(Long postId) {
 
     Post post = postRepository.findById(postId)
-        .orElseThrow(() -> new EntityNotFoundException("해당 게시물 아이디는 존재하지 않습니다."));
+        .orElseThrow(() -> new NotFoundException("해당 게시물 아이디는 존재하지 않습니다."));
 
     List<Comments> commentsList = commentRepository.findAllCommentsWithMemberByPost(post);
 
@@ -54,10 +56,10 @@ public class ReactionService {
   public CommentWriteResponse CommentWrite(CommentWriteRequest commentRequest, Long postId, String userId) {
 
     Member member = memberRepository.findByUserId(userId)
-        .orElseThrow(() -> new EntityNotFoundException("해당 엔티티가 존재하지 않습니다"));
+        .orElseThrow(() -> new NotFoundException("해당 엔티티가 존재하지 않습니다"));
 
     Post post = postRepository.findById(postId)
-        .orElseThrow(() -> new EntityNotFoundException("해당 게시물이 존재하지 않습니다"));
+        .orElseThrow(() -> new NotFoundException("해당 게시물이 존재하지 않습니다"));
 
     Comments comments = Comments.builder()
         .member(member)
@@ -86,10 +88,10 @@ public class ReactionService {
   public void helpfullAdd(Long postId, String userId) {
 
     Member member = memberRepository.findByUserId(userId)
-        .orElseThrow(() -> new EntityNotFoundException("해당 유저는 존재하지 않습니다"));
+        .orElseThrow(() -> new NotFoundException("해당 유저는 존재하지 않습니다"));
 
     Post post = postRepository.findById(postId)
-        .orElseThrow(()-> new EntityNotFoundException("해당 게시글은 존재하지 않습니다"));
+        .orElseThrow(()-> new NotFoundException("해당 게시글은 존재하지 않습니다"));
 
     Favorite favoriteActive = favoriteRepository.findByMemberAndPost(member, post);
 
@@ -115,10 +117,10 @@ public class ReactionService {
 
 
     Member member = memberRepository.findByUserId(userId)
-        .orElseThrow(() -> new EntityNotFoundException("해당 유저는 존재하지 않습니다"));
+        .orElseThrow(() -> new NotFoundException("해당 유저는 존재하지 않습니다"));
 
     Post post = postRepository.findById(postId)
-        .orElseThrow(()-> new EntityNotFoundException("해당 게시글은 존재하지 않습니다"));
+        .orElseThrow(()-> new NotFoundException("해당 게시글은 존재하지 않습니다"));
 
     Favorite favorite = favoriteRepository.findByMemberAndPost(member, post);
 
@@ -136,10 +138,10 @@ public class ReactionService {
   public void CommentDelete(Long commentId, String userId) {
 
     Comments comments = commentRepository.findById(commentId)
-        .orElseThrow(()-> new EntityNotFoundException("해당 댓글이 존재하지 않습니다"));
+        .orElseThrow(()-> new NotFoundException("해당 댓글이 존재하지 않습니다"));
 
     Member member = memberRepository.findByUserId(userId)
-        .orElseThrow(()-> new EntityNotFoundException("로그인된 사용자는 존재하지 않습니다"));
+        .orElseThrow(()-> new NotFoundException("로그인된 사용자는 존재하지 않습니다"));
 
     if(member != comments.getMember()){
       throw new IllegalArgumentException("로그인된 사용자와 댓글 쓴 사용자와 다릅니다.");

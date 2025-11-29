@@ -19,7 +19,8 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         String[] allowedOrigins = {
                 frontServer,
-                backendServer
+                backendServer,
+            "http://loclhost:3000"
         };
 
         registry.addMapping("/**")
