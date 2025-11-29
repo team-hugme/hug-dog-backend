@@ -102,7 +102,7 @@ public class AuthController extends BaseController {
         response.addCookie(cookie);
 
         return CommonApiResponse.success(
-            ResponseCode.OK,
+            ResponseCode.NO_CONTENT,
             "정상적으로 로그아웃이 완료되었습니다."
         );
     }
