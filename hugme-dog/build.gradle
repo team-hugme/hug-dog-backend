@@ -79,6 +79,19 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.awaitility:awaitility:4.2.0'
+
+    //gemini
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.3.0'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.20.0'
+    implementation 'dev.langchain4j:langchain4j-spring-boot-starter:1.8.0-beta15'
+    implementation 'dev.langchain4j:langchain4j-google-ai-gemini:1.8.0'
+    implementation 'dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2:1.0.0-beta3'
+    implementation 'dev.langchain4j:langchain4j-mongodb-atlas:1.0.0-beta3'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+    //socket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket:3.5.7'
+
 }
 
 // 트랜지티브 의존성 강제 적용
