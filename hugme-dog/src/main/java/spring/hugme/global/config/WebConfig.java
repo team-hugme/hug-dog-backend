@@ -20,7 +20,7 @@ public class WebConfig implements WebMvcConfigurer {
         String[] allowedOrigins = {
                 frontServer,
                 backendServer,
-            "http://loclhost:3000"
+            "http://localhost:3000"
         };
 
         registry.addMapping("/**")
