@@ -16,7 +16,7 @@ public class BoardListResponse {
 
   Long postId;
 
-  Long boarId;
+  Long boardId;
 
   String nickname;
 
@@ -32,6 +32,8 @@ public class BoardListResponse {
   Long commentCount;
 
   String imageUrl;
+
+  String profileImageUrl;
 
 
 }

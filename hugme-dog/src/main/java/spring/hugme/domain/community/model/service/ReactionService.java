@@ -46,6 +46,7 @@ public class ReactionService {
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getModifiedAt())
+                .profileImageUrl(comment.getMember().getProfileUrl())
                 .build()
         )
         .toList();

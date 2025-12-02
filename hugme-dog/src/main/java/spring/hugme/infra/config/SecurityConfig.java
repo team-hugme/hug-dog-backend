@@ -39,7 +39,7 @@ public class SecurityConfig {
                     "/api/v1/community/posts"
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/community/posts/detail/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/community/posts/**/comment").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/community/posts/*/comment").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
