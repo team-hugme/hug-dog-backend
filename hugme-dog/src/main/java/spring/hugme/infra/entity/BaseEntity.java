@@ -27,18 +27,11 @@ public class BaseEntity {
         this.activated = activated;
     }
 
+    public BaseEntity() {
+    }
+
     public void unActivated() {
         this.activated = false;
     }
 
-    public BaseEntity() {
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public Boolean getActivated() {
-        return activated;
-    }
 }

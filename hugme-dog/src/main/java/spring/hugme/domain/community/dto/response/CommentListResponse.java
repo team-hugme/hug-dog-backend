@@ -21,4 +21,6 @@ public class CommentListResponse {
 
   LocalDateTime updatedAt;
 
+  String profileImageUrl;
+
 }

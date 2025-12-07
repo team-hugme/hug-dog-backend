@@ -66,9 +66,7 @@ public class AuthController extends BaseController {
     }
 
     /**
-     * Access Token 재발급
-     * - Refresh Token을 쿠키에서 가져옴
-     * - userId는 Refresh Token에서 추출
+     * Access Token 재발급 - Refresh Token을 쿠키에서 가져옴 - userId는 Refresh Token에서 추출
      */
     @PostMapping("/reissue")
     public CommonApiResponse<LoginResponse> reissue(
@@ -84,9 +82,7 @@ public class AuthController extends BaseController {
     }
 
     /**
-     * 로그아웃
-     * - Redis에서 Refresh Token 삭제
-     * - Refresh Token 쿠키 삭제
+     * 로그아웃 - Redis에서 Refresh Token 삭제 - Refresh Token 쿠키 삭제
      */
     @PostMapping("/logout")
     public CommonApiResponse<Void> logout(
@@ -106,7 +102,7 @@ public class AuthController extends BaseController {
         response.addCookie(cookie);
 
         return CommonApiResponse.success(
-            ResponseCode.OK,
+            ResponseCode.NO_CONTENT,
             "정상적으로 로그아웃이 완료되었습니다."
         );
     }

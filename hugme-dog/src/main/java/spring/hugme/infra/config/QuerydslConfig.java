@@ -8,10 +8,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class QuerydslConfig {
 
-  @Bean
-  public JPAQueryFactory jpaQueryFactory(EntityManager em) {
-    // 주입받은 EntityManager를 사용하여 팩토리 초기화
-    return new JPAQueryFactory(em);
-  }
-
+    @Bean
+    public JPAQueryFactory jpaQueryFactory(EntityManager em) {
+        return new JPAQueryFactory(em);
+    }
 }
