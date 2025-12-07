@@ -2,6 +2,7 @@ package spring.hugme.infra.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -26,6 +27,7 @@ public class SecurityConfig {
         log.info("SecurityFilterChain 설정 시작");
 
         http
+            .cors(cors -> cors.configure(http))
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -39,7 +41,7 @@ public class SecurityConfig {
                     "/api/v1/community/posts"
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/community/posts/detail/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/community/posts/**/comment").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/community/posts/*/comment").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

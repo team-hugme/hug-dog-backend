@@ -20,7 +20,7 @@ public class PostDetailResponse {
 
   Long postId;
 
-  Long boarId;
+  Long boardId;
 
   String nickname;
 
@@ -42,4 +42,6 @@ public class PostDetailResponse {
   boolean liketrue;
 
   List<String> imageUrl;
+
+  String profileImageUrl;
 }

@@ -16,7 +16,6 @@ import org.hibernate.type.SqlTypes;
 import spring.hugme.infra.entity.BaseEntity;
 
 @Entity
-@Table(name = "member")
 @Builder
 @Getter
 @Setter
