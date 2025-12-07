@@ -1,6 +1,7 @@
 package spring.hugme.domain.community.dto.response;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -26,7 +27,6 @@ public class PostDetailResponse {
 
   List<TagInfo> tag;
 
-
   String title;
 
   String content;
@@ -39,7 +39,8 @@ public class PostDetailResponse {
 
   LocalDateTime updatedAt;
 
-  boolean liketrue;
+  @JsonProperty("isLiked")
+  boolean isLiked;
 
   List<String> imageUrl;
 
