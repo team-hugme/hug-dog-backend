@@ -12,11 +12,11 @@ VALUES
     ('FREE_TALK', NOW(), NOW(), true);
 
 -- 👤 2. Member (ID를 BINARY(16)으로 변환)
-INSERT INTO member (id, user_id, email, password, phone, name, created_at, birthday, modified_at, activated)
+INSERT INTO member (id, user_id, email, password, phone, name, created_at, birthday, modified_at, activated, profile_url)
 VALUES
-    (UUID_TO_BIN('11111111-1111-1111-1111-111111111111'), 'ajkd', 'doglover@example.com', 'pw1234', '010-4677-6023', '홍길동', NOW(), '2001-11-11', NOW(), true),
-    (UUID_TO_BIN('22222222-2222-2222-2222-222222222222'), 'user1', 'vetinfo@example.com', 'pw5678', '010-1234-5678', '홍길동', NOW(), '2001-11-11', NOW(), true),
-    (UUID_TO_BIN('33333333-3333-3333-3333-333333333333'), 'user2', 'supporter@example.com', 'pw9999', '010-1234-7890', '홍길동', NOW(), '2001-11-11', NOW(), true);
+    (UUID_TO_BIN('11111111-1111-1111-1111-111111111111'), 'ajkd', 'doglover@example.com', 'pw1234', '010-4677-6023', '홍길동', NOW(), '2001-11-11', NOW(), true,'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1764656860/%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C_modrhq.jpg'),
+    (UUID_TO_BIN('22222222-2222-2222-2222-222222222222'), 'user1', 'vetinfo@example.com', 'pw5678', '010-1234-5678', '홍길동', NOW(), '2001-11-11', NOW(), true, 'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1764656851/%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C_2_koqas5.jpg'),
+    (UUID_TO_BIN('33333333-3333-3333-3333-333333333333'), 'user2', 'supporter@example.com', 'pw9999', '010-1234-7890', '홍길동', NOW(), '2001-11-11', NOW(), true, 'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1764656843/%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C_1_fi2riw.jpg');
 
 -- 📝 3. Post (게시글 - user_id 참조 부분 변환)
 INSERT INTO post (board_id, user_id, title, content, created_at, modified_at, activated)
@@ -34,9 +34,9 @@ VALUES
 -- (post_id가 UUID라면 여기도 UUID_TO_BIN을 써야 하지만, 보통 게시글 ID는 Long(숫자)을 쓰므로 그대로 둡니다.)
 INSERT INTO post_image (post_id, origin_file_name, rename_file_name, save_path)
 VALUES
-    (3, 'hospital.jpg', 'hospital_1.jpg', '/uploads/posts/3/'),
-    (6, 'walk.jpg', 'walk_1.jpg', '/uploads/posts/6/'),
-    (8, 'dogclothes.jpg', 'dogclothes_1.jpg', '/uploads/posts/8/');
+    (3, 'hospital.jpg', 'hospital_1.jpg', 'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1763707069/post_uploads/m1ryt6ptdy6wyydp4yog.png'),
+    (6, 'walk.jpg', 'walk_1.jpg', 'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1763706392/post_uploads/ajqvyjwdjvyy6be9ooav.png'),
+    (8, 'dogclothes.jpg', 'dogclothes_1.jpg', 'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1764656636/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7_2025-05-06_150107_mscbyh.png');
 
 -- 🔖 5. PostHashtag (게시글 해시태그)
 INSERT INTO post_hashtag (post_id, hashtag_content)
@@ -63,3 +63,55 @@ VALUES
     (NULL, 5, UUID_TO_BIN('11111111-1111-1111-1111-111111111111'), NOW(), NOW(), TRUE),
     (NULL, 6, UUID_TO_BIN('22222222-2222-2222-2222-222222222222'), NOW(), NOW(), TRUE),
     (NULL, 7, UUID_TO_BIN('33333333-3333-3333-3333-333333333333'), NOW(), NOW(), TRUE);
+-- 1. gender 컬럼을 숫자가 아닌 문자로 변경
+ALTER TABLE dog MODIFY gender VARCHAR(20);
+
+-- 2. dog_size 컬럼도 문자로 변경
+ALTER TABLE dog MODIFY dog_size VARCHAR(20);
+
+INSERT INTO dog (user_id, dog_name, gender, is_neuered, breed, birth, disease, dog_size, created_at, modified_at, imageURL)
+VALUES
+    -- 1. 첫 번째 회원 ('ajkd')의 강아지 : 뽀삐 (소형견, 말티푸)
+    (
+        UUID_TO_BIN('11111111-1111-1111-1111-111111111111'),
+        '뽀삐',
+        'MALE',
+        true,
+        '말티푸',
+        '2020-05-05 00:00:00',
+        false,
+        'SMALL',
+        NOW(),
+        NOW(),
+        'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1764656860/%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C_modrhq.jpg'
+    ),
+
+    -- 2. 두 번째 회원 ('user1')의 강아지 : 초코 (중형견, 푸들)
+    (
+        UUID_TO_BIN('22222222-2222-2222-2222-222222222222'),
+        '초코',
+        'FEMALE',
+        false,
+        '푸들',
+        '2021-08-15 00:00:00',
+        true,
+        'MEDIUM',
+        NOW(),
+        NOW(),
+        'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1764656860/%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C_modrhq.jpg'
+    ),
+
+    -- 3. 세 번째 회원 ('user2')의 강아지 : 맥스 (대형견, 리트리버)
+    (
+        UUID_TO_BIN('33333333-3333-3333-3333-333333333333'),
+        '맥스',
+        'MALE',
+        true,
+        '골든 리트리버',
+        '2019-01-10 00:00:00',
+        false,
+        'LARGE',
+        NOW(),
+        NOW(),
+        'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1764656860/%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C_modrhq.jpg'
+    );
