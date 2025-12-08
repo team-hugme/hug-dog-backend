@@ -7,6 +7,7 @@ import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 
 import dev.langchain4j.store.embedding.EmbeddingStore;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,7 @@ public class DogMemoryService {
     String fullConversation = String.join("\n", request.getChatLogs());
 
     // 2) AI에게 요약 시키기
-    String prompt = "다음 대화 내용에서 '사용자에 대한 정보'나 '강아지와의 추억'과 관련된 핵심 내용만 3줄로 요약해줘:\n" + fullConversation;
+    String prompt = "다음 대화 내용에서 '사용자에 대한 정보'나 '강아지와의 추억'과 관련된 핵심 내용만 3줄로 요약해줘 그리고 각 시간도 담아줘:\n" + fullConversation;
     String summary = chatLanguageModel.chat(prompt);
 
 
@@ -47,7 +48,8 @@ public class DogMemoryService {
     metaData.put("dogId", String.valueOf(request.getDogId()));
 
     // 3) 요약된 내용을 벡터 DB에 저장 (메타데이터로 날짜 등 추가 가능)
-    TextSegment segment = TextSegment.from("대화 기억: " + summary, metaData);
+    String today = LocalDate.now().toString();
+    TextSegment segment = TextSegment.from("[" + today + "] " + "대화 기억: " + summary, metaData);
     Embedding embedding = embeddingModel.embed(segment).content();
     embeddingStore.add(embedding, segment);
 
