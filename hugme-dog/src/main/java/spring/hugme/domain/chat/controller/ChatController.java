@@ -16,6 +16,7 @@ import spring.hugme.domain.chat.dto.ChatBotDogListResponse;
 import spring.hugme.domain.chat.dto.ChatBotResponse;
 import spring.hugme.domain.chat.dto.ChatMessageListResponse;
 import spring.hugme.domain.chat.dto.ChatResponse;
+import spring.hugme.domain.chat.dto.ChatRoomRequest;
 import spring.hugme.domain.chat.dto.ChatStartRequest;
 import spring.hugme.domain.chat.dto.DogMemoryRequest;
 import spring.hugme.domain.chat.model.service.ChatService;
@@ -33,9 +34,9 @@ public class ChatController {
   private final DogMemoryService dogMemoryService;
 
   @PostMapping("/chat/{dogId}")
-  public CommonApiResponse<ChatBotResponse> ChatRoomCreate(@PathVariable Long dogId, @AuthenticationPrincipal String userId){
+  public CommonApiResponse<ChatBotResponse> ChatRoomCreate(@PathVariable Long dogId, @RequestBody ChatRoomRequest request, @AuthenticationPrincipal String userId){
 
-    ChatBotResponse response = chatService.ChatRoomCreate(dogId, userId);
+    ChatBotResponse response = chatService.ChatRoomCreate(dogId, userId, request);
 
     return CommonApiResponse.success(
         ResponseCode.CREATED,
