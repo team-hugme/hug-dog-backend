@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -54,4 +55,15 @@ public class Dog extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private DogSize dogSize;
 
+
+  public int getAge() {
+    if (this.birth == null) {
+      return 0;
+    }
+
+    LocalDate birthDate = this.birth.toLocalDate();
+    LocalDate currentDate = LocalDate.now();
+
+    return Period.between(birthDate, currentDate).getYears();
+  }
 }
