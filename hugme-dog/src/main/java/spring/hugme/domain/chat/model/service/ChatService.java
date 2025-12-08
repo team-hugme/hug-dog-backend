@@ -1,11 +1,7 @@
 package spring.hugme.domain.chat.model.service;
-
-import dev.langchain4j.data.embedding.Embedding;
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.store.embedding.EmbeddingStore;
 import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +10,7 @@ import spring.hugme.domain.chat.dto.ChatBotResponse;
 import spring.hugme.domain.chat.dto.ChatMessageListResponse;
 import spring.hugme.domain.chat.dto.ChatMessageResponse;
 import spring.hugme.domain.chat.dto.ChatResponse;
+import spring.hugme.domain.chat.dto.ChatRoomRequest;
 import spring.hugme.domain.chat.dto.ChatStartRequest;
 import spring.hugme.domain.chat.dto.LastMessageDto;
 import spring.hugme.domain.chat.entity.ChatBot;
@@ -36,8 +33,6 @@ public class ChatService {
   private final DogRepository dogRepository;
   private final ChatBotRepository chatBotRepository;
   private final ChatMessageRepository chatMessageRepository;
-  private final EmbeddingStore<TextSegment> embeddingStore;
-  private final EmbeddingModel embeddingModel;
   private final RedisMessageService redisMessageService;
 
 
@@ -50,6 +45,11 @@ public class ChatService {
     ChatBot chatBot = chatBotRepository.findById(request.getChatBotId())
         .orElseThrow(() -> new NotFoundException("해당 챗봇이 존재하지 않습니다."));
 
+    Dog dog = dogRepository.findById(request.getDogId())
+        .orElseThrow(() -> new NotFoundException("해당 강아지가 존재하지 않습니다"));
+
+    String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"));
+
     String RainbowTrue;
 
     if(request.isRainbowTrue()){
@@ -58,7 +58,8 @@ public class ChatService {
       RainbowTrue = "현재 살아서 주인 옆에 있는";
     }
 
-    String assistantMessage = dotBot.chat(request.getChatBotId(), String.valueOf(request.getDogId()),request.getDogName(), member.getName(), request.getDogFeature(), request.getDogAge(), request.getDogBreed(), RainbowTrue, request.getUserMessage());
+
+    String assistantMessage = dotBot.chat(request.getChatBotId(), String.valueOf(dog.getDogId()),dog.getDogName(), member.getName(), chatBot.getDogFeature(), dog.getAge(), dog.getBreed(), RainbowTrue, request.getGender(), today,request.getUserMessage());
 
     ChatMessage humanMessage = ChatMessage.builder()
         .member(member)
@@ -105,7 +106,7 @@ public class ChatService {
   }
 
   @Transactional
-  public ChatBotResponse ChatRoomCreate(Long dogId, String userId) {
+  public ChatBotResponse ChatRoomCreate(Long dogId, String userId, ChatRoomRequest request) {
 
     Member member = userRepository.findByUserId(userId)
         .orElseThrow(() -> new NotFoundException("해당 멤버가 존재하지 않습니다."));
@@ -117,6 +118,7 @@ public class ChatService {
         .lastMessage(null)
         .member(member)
         .dog(dog)
+        .dogFeature(request.getDogFeature())
         .build();
 
     chatBotRepository.save(chatBot);
