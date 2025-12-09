@@ -150,7 +150,29 @@ public class communityController {
 
     return CommonApiResponse.success(
         ResponseCode.NO_CONTENT,
-        "정상적으로 커뮤니티글이 삭제되었습니다."
+        "정상적으로 커뮤니티 글이 삭제되었습니다."
+    );
+
+  }
+
+  //글 상세보기에서 추천 글 목록
+  @GetMapping("/{postId}/recommend")
+  public CommonApiResponse<List<BoardListResponse>> RecommendPosts(@PathVariable Long postId, Principal principal){
+
+    Optional<Member> currentUserMember = Optional.empty();
+
+    if (principal != null && !principal.getName().equals("anonymousUser")) {
+
+      String userId = principal.getName();
+      currentUserMember = memberRepository.findByUserId(userId);
+    }
+
+    List<BoardListResponse> responses = communityService.RecommendPosts(postId, currentUserMember);
+
+    return CommonApiResponse.success(
+        ResponseCode.OK,
+        "정상적으로 커뮤니티 추천글이 불러와졌습니다.",
+        responses
     );
 
   }
