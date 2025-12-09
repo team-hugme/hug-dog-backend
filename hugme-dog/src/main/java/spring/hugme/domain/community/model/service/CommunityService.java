@@ -311,4 +311,16 @@ public class CommunityService {
 
     post.setActivated(false);
   }
+
+  @Transactional
+  public List<BoardListResponse> RecommendPosts(Long postId, Optional member) {
+
+    Post post = postRepository.findById(postId)
+        .orElseThrow(()-> new NotFoundException("해당 글이 존재하지 않습니다."));
+
+    List<Post> posts = postRepository.findAllByRecommendPost(postId, post.getHashtagList(), 6);
+
+    return toBoardListResponse(posts, member);
+
+  }
 }
