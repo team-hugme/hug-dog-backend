@@ -41,8 +41,8 @@ public class BoardListResponse {
 
   LocalDateTime updatedAt;
 
-  @JsonProperty("isLiked")
-  boolean isLiked;
+
+  Boolean isLiked;
 
 
 }

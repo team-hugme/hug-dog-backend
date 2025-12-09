@@ -39,8 +39,7 @@ public class PostDetailResponse {
 
   LocalDateTime updatedAt;
 
-  @JsonProperty("isLiked")
-  boolean isLiked;
+  Boolean isLiked;
 
   List<String> imageUrl;
 
