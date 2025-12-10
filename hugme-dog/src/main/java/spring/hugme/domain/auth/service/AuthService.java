@@ -70,7 +70,7 @@ public class AuthService {
             .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        return new LoginResponse(accessToken);
+        return new LoginResponse(accessToken, userId);
 
     }
 
@@ -86,7 +86,7 @@ public class AuthService {
             throw new AuthApiException(ResponseCode.MISMATCH_TOKEN);
         }
         String newAccessToken = jwtProvider.generateAccessToken(userId);
-        return new LoginResponse(newAccessToken);
+        return new LoginResponse(newAccessToken, userId);
     }
 
     /**
