@@ -1,5 +1,6 @@
 package spring.hugme.domain.community.model.repo;
 
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import spring.hugme.domain.community.entity.Favorite;
@@ -10,4 +11,6 @@ import spring.hugme.domain.user.entity.Member;
 public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
   Favorite findByMemberAndPost(Member member, Post post);
+
+  List<Favorite> findByPost(Post post);
 }
