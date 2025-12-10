@@ -63,3 +63,55 @@ VALUES
     (NULL, 5, UUID_TO_BIN('11111111-1111-1111-1111-111111111111'), NOW(), NOW(), TRUE),
     (NULL, 6, UUID_TO_BIN('22222222-2222-2222-2222-222222222222'), NOW(), NOW(), TRUE),
     (NULL, 7, UUID_TO_BIN('33333333-3333-3333-3333-333333333333'), NOW(), NOW(), TRUE);
+-- 1. gender 컬럼을 숫자가 아닌 문자로 변경
+ALTER TABLE dog MODIFY gender VARCHAR(20);
+
+-- 2. dog_size 컬럼도 문자로 변경
+ALTER TABLE dog MODIFY dog_size VARCHAR(20);
+
+INSERT INTO dog (user_id, dog_name, gender, is_neuered, breed, birth, disease, dog_size, created_at, modified_at, imageURL)
+VALUES
+    -- 1. 첫 번째 회원 ('ajkd')의 강아지 : 뽀삐 (소형견, 말티푸)
+    (
+        UUID_TO_BIN('11111111-1111-1111-1111-111111111111'),
+        '뽀삐',
+        'MALE',
+        true,
+        '말티푸',
+        '2020-05-05 00:00:00',
+        false,
+        'SMALL',
+        NOW(),
+        NOW(),
+        'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1764656860/%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C_modrhq.jpg'
+    ),
+
+    -- 2. 두 번째 회원 ('user1')의 강아지 : 초코 (중형견, 푸들)
+    (
+        UUID_TO_BIN('22222222-2222-2222-2222-222222222222'),
+        '초코',
+        'FEMALE',
+        false,
+        '푸들',
+        '2021-08-15 00:00:00',
+        true,
+        'MEDIUM',
+        NOW(),
+        NOW(),
+        'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1764656860/%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C_modrhq.jpg'
+    ),
+
+    -- 3. 세 번째 회원 ('user2')의 강아지 : 맥스 (대형견, 리트리버)
+    (
+        UUID_TO_BIN('33333333-3333-3333-3333-333333333333'),
+        '맥스',
+        'MALE',
+        true,
+        '골든 리트리버',
+        '2019-01-10 00:00:00',
+        false,
+        'LARGE',
+        NOW(),
+        NOW(),
+        'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1764656860/%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C_modrhq.jpg'
+    );
