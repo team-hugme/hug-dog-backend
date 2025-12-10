@@ -28,7 +28,7 @@ import spring.hugme.global.error.exceptions.NotFoundException;
 @RequiredArgsConstructor
 public class ChatService {
 
-  private final DogAssistant dotBot;
+  private final DogAssistant dogBot;
   private final UserRepository userRepository;
   private final DogRepository dogRepository;
   private final ChatBotRepository chatBotRepository;
@@ -59,7 +59,7 @@ public class ChatService {
     }
 
 
-    String assistantMessage = dotBot.chat(request.getChatBotId(), String.valueOf(dog.getDogId()),dog.getDogName(), member.getName(), chatBot.getDogFeature(), dog.getAge(), dog.getBreed(), RainbowTrue, request.getGender(), today,request.getUserMessage());
+    String assistantMessage = dogBot.chat(request.getChatBotId(), String.valueOf(dog.getDogId()),dog.getDogName(), member.getName(), chatBot.getDogFeature(), dog.getAge(), dog.getBreed(), RainbowTrue, request.getGender(), today,request.getUserMessage());
 
     ChatMessage humanMessage = ChatMessage.builder()
         .member(member)
@@ -147,6 +147,7 @@ public class ChatService {
                 .content(message.getContent())
                 .isSender(message.getIsSender())
                 .createdAt(message.getCreatedAt())
+                .updatedAt(message.getModifiedAt())
                 .build())
         .toList();
 

@@ -66,7 +66,7 @@ public class ChatController {
     dogMemoryService.rememberConversation(request);
 
     return CommonApiResponse.success(ResponseCode.OK,
-        "정상적으로 강아지가 이 기억을 저장이 완료되었습니다.");
+        "정상적으로 기억 저장이 완료되었습니다.");
   }
 
   //채팅방 대화 기록 보기

@@ -17,6 +17,8 @@ public class ChatMessageListResponse {
 
   LocalDateTime createdAt;
 
+  LocalDateTime updatedAt;
+
 
 
 }

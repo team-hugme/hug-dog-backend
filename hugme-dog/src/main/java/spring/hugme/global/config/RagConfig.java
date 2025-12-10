@@ -25,11 +25,9 @@ public class RagConfig {
     return new AllMiniLmL6V2EmbeddingModel();
   }
 
-  // 질문하신 코드 수정 버전
   @Bean
-  public MongoDbEmbeddingStore embeddingStore(EmbeddingModel embeddingModel, MongoClient mongoClient) {
-
-    // "userId"라는 필드로 검색할 거라고 미리 알려줌
+  public MongoDbEmbeddingStore embeddingStore(MongoClient mongoClient) {
+    
     Set<String> metadataFields = new HashSet<>();
     metadataFields.add("dogId");
 
