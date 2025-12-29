@@ -142,6 +142,7 @@ public class CommunityService {
         .isLiked(liketrue)
         .imageUrl(postImageUrl)
         .profileImageUrl(post.getMember().getProfileUrl())
+        .postUserId(post.getMember().getUserId())
         .build();
 
     return postDetailResponse;

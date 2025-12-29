@@ -19,6 +19,8 @@ public class PostDetailResponse {
 
   UUID userId;
 
+  String postUserId;
+
   Long postId;
 
   Long boardId;
