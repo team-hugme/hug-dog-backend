@@ -2,15 +2,18 @@ package spring.hugme.domain.community.model.repo.custom;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import spring.hugme.domain.community.dto.PostListProjection;
 import spring.hugme.domain.community.entity.Board;
 import spring.hugme.domain.community.entity.Post;
+import spring.hugme.domain.community.entity.PostHashtag;
 import spring.hugme.domain.community.entity.QBoard;
 import spring.hugme.domain.community.entity.QComments;
 import spring.hugme.domain.community.entity.QFavorite;
 import spring.hugme.domain.community.entity.QPost;
+import spring.hugme.domain.community.entity.QPostHashtag;
 
 
 @RequiredArgsConstructor
@@ -84,4 +87,36 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
         .fetchOne();
   }
 
+  @Override
+  public List<Post> findAllByRecommendPost(Long postId, List<PostHashtag> hashtagList, int i) {
+    QPost post = QPost.post;
+    QPostHashtag postHashtag = QPostHashtag.postHashtag;
+
+
+    List<String> tagNames = hashtagList.stream()
+        .map(ph -> ph.getHashtagContent())
+        .toList();
+
+    // 태그가 하나도 없으면 추천할 게 없으니 빈 리스트 반환
+    if (tagNames.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    return queryFactory
+        .selectFrom(post)
+
+        .join(post.hashtagList, postHashtag)
+        .where(
+            postHashtag.hashtagContent.in(tagNames),
+            post.postId.ne(postId),
+            post.activated.isTrue()
+        )
+        .groupBy(post.postId)
+        .orderBy(
+            postHashtag.count().desc(), // 1순위: 겹치는 태그 개수가 많은 순
+            post.createdAt.desc()       // 2순위: 최신순
+        )
+        .limit(i)
+        .fetch();
+  }
 }

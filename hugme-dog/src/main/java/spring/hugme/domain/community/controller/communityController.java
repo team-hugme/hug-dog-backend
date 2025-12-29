@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,16 +45,24 @@ public class communityController {
 
   //전체 조회
   @GetMapping
-  public CommonApiResponse<List<BoardListResponse>> BoardAllList(@RequestParam(required = false) BoardAlias type){
+  public CommonApiResponse<List<BoardListResponse>> BoardAllList(@RequestParam(required = false) BoardAlias type, Principal principal){
 
     List<BoardListResponse> boardList;
 
+    Optional<Member> currentUserMember = Optional.empty();
+
+    if (principal != null && !principal.getName().equals("anonymousUser")) {
+
+      String userId = principal.getName();
+      currentUserMember = memberRepository.findByUserId(userId);
+    }
+
     if (type != null) {
       // 쿼리 파라미터 'type'이 있을 경우 (예: /posts?type=QNA)
-      boardList = communityService.BoardTypeAllList(type);
+      boardList = communityService.BoardTypeAllList(type,currentUserMember);
     } else {
       // 쿼리 파라미터 'type'이 없을 경우 (예: /posts)
-      boardList = communityService.BoardAllList();
+      boardList = communityService.BoardAllList(currentUserMember);
     }
 
     return CommonApiResponse.success(
@@ -120,7 +129,7 @@ public class communityController {
   }
 
   //글 수정
-  @PatchMapping("detail/{postId}")
+  @PatchMapping("/detail/{postId}")
   public CommonApiResponse<String> PostModify(@RequestBody final PostWriteRequest postWriteRequest,@AuthenticationPrincipal String userId, @PathVariable Long postId){
 
     communityService.PostModify(postWriteRequest, userId, postId);
@@ -129,6 +138,41 @@ public class communityController {
     return CommonApiResponse.success(
         ResponseCode.NO_CONTENT,
         "정상적으로 커뮤니티글이 수정되었습니다."
+    );
+
+  }
+
+  //글 삭제
+  @DeleteMapping("/detail/{postId}")
+  public CommonApiResponse<String> PostDelete(@PathVariable Long postId){
+
+    communityService.PostDelete(postId);
+
+    return CommonApiResponse.success(
+        ResponseCode.NO_CONTENT,
+        "정상적으로 커뮤니티 글이 삭제되었습니다."
+    );
+
+  }
+
+  //글 상세보기에서 추천 글 목록
+  @GetMapping("/{postId}/recommend")
+  public CommonApiResponse<List<BoardListResponse>> RecommendPosts(@PathVariable Long postId, Principal principal){
+
+    Optional<Member> currentUserMember = Optional.empty();
+
+    if (principal != null && !principal.getName().equals("anonymousUser")) {
+
+      String userId = principal.getName();
+      currentUserMember = memberRepository.findByUserId(userId);
+    }
+
+    List<BoardListResponse> responses = communityService.RecommendPosts(postId, currentUserMember);
+
+    return CommonApiResponse.success(
+        ResponseCode.OK,
+        "정상적으로 커뮤니티 추천글이 불러와졌습니다.",
+        responses
     );
 
   }

@@ -1,5 +1,7 @@
 package spring.hugme.domain.community.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
@@ -34,6 +36,13 @@ public class BoardListResponse {
   String imageUrl;
 
   String profileImageUrl;
+
+  LocalDateTime createdAt;
+
+  LocalDateTime updatedAt;
+
+
+  Boolean isLiked;
 
 
 }

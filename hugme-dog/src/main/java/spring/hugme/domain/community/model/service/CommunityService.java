@@ -16,7 +16,9 @@ import spring.hugme.domain.community.dto.response.PostDetailResponse;
 import spring.hugme.domain.community.dto.request.PostWriteRequest;
 import spring.hugme.domain.community.dto.response.PostWriteResponse;
 import spring.hugme.domain.community.dto.PostListProjection;
+import spring.hugme.domain.community.entity.Comments;
 import spring.hugme.domain.community.entity.Favorite;
+import spring.hugme.domain.community.model.repo.CommentRepository;
 import spring.hugme.domain.community.model.repo.FavoriteRepository;
 import spring.hugme.domain.user.repository.UserRepository;
 import spring.hugme.global.code.BoardAlias;
@@ -43,6 +45,7 @@ public class CommunityService {
   private final PostImageRepository postImageRepository;
   private final FavoriteRepository favoriteRepository;
   private final UserRepository memberRepository;
+  private final CommentRepository commentRepository;
 
   @Value("${upload.path}")
   private String uploadPath;
@@ -62,16 +65,16 @@ public class CommunityService {
   }
 
 // 전체 글 보기
-  public List<BoardListResponse> BoardAllList() {
+  public List<BoardListResponse> BoardAllList(Optional member) {
 
     List<Post> postList = postRepository.findAllWithAllRelations();
 
-    return toBoardListResponse(postList);
+    return toBoardListResponse(postList, member);
   }
 
 
   //해당되는 타입 글 보기
-  public List<BoardListResponse> BoardTypeAllList(BoardAlias type) {
+  public List<BoardListResponse> BoardTypeAllList(BoardAlias type, Optional member) {
 
     Board board = boardRepository.findByType(type)
         .orElseThrow(() -> new NotFoundException("커뮤니티 타입 요청이 잘못되었습니다"));
@@ -79,12 +82,17 @@ public class CommunityService {
     List<Post> postList = postRepository.findAllByBoardWithBoardAndMember(board);
 
 
-    return toBoardListResponse(postList);
+    return toBoardListResponse(postList, member);
   }
 
   public PostDetailResponse PostDetailView(Long postId, Optional member) {
 
     Post post = postRepository.findByPostIdWithAllRelations(postId);
+
+    if(post.getActivated() == false){
+
+      throw new NotFoundException("해당 글이 존재하지 않습니다");
+    }
 
     List<PostHashtag> postHashtags = postHashTagRepository.findAllByPost(post);
 
@@ -131,7 +139,7 @@ public class CommunityService {
         .likeCount(counts.getLikeCount())
         .createdAt(post.getCreatedAt())
         .updatedAt(post.getModifiedAt())
-        .liketrue(liketrue)
+        .isLiked(liketrue)
         .imageUrl(postImageUrl)
         .profileImageUrl(post.getMember().getProfileUrl())
         .build();
@@ -141,7 +149,7 @@ public class CommunityService {
 
   }
 
-  private List<BoardListResponse> toBoardListResponse(List<Post> postList) {
+  private List<BoardListResponse> toBoardListResponse(List<Post> postList, Optional member) {
     return postList.stream()
         .map(post -> {
 
@@ -154,7 +162,19 @@ public class CommunityService {
 
           PostListProjection counts = postRepository.findCountsByPostId(post.getPostId());
 
-          Optional<PostImage> imageOpt = postImageRepository.findFirstByPost(post);
+          Optional<PostImage> imageOpt = postImageRepository.findFirstByPostAndActivatedTrue(post);
+          boolean liketrue = false;
+
+          if (member.isPresent()) {
+            // 로그인된 사용자일 때만 좋아요 상태를 확인합니다.
+            Member loginMember = (Member) member.get();
+
+            Favorite favorite = favoriteRepository.findByMemberAndPost(loginMember, post);
+
+            if (favorite != null) {
+              liketrue = favorite.getActivated();
+            }
+          }
 
           String imageUrl = imageOpt.map(PostImage::getSavePath)
               .orElse("https://res.cloudinary.com/dyz2lq1f0/image/upload/v1763707069/post_uploads/m1ryt6ptdy6wyydp4yog.png");
@@ -171,6 +191,9 @@ public class CommunityService {
               .tag(tagInfoList)
               .imageUrl(imageUrl)
               .profileImageUrl(post.getMember().getProfileUrl())
+              .createdAt(post.getCreatedAt())
+              .updatedAt(post.getModifiedAt())
+              .isLiked(liketrue)
               .build();
         })
         .collect(Collectors.toList());
@@ -263,6 +286,41 @@ public class CommunityService {
     }
 
 
+
+  }
+
+  @Transactional
+  public void PostDelete(Long postId) {
+
+    Post post = postRepository.findById(postId)
+        .orElseThrow(() -> new NotFoundException("해당 글이 존재하지 않습니다"));
+
+    List<Comments> comments = commentRepository.findByPost(post);
+
+    List<PostImage> images = postImageRepository.findAllByPost(post);
+
+    List<Favorite> favorites = favoriteRepository.findByPost(post);
+
+    List<PostHashtag> hashtags = postHashTagRepository.findAllByPost(post);
+
+    comments.forEach(comment -> comment.setActivated(false));
+    images.forEach(image -> image.setActivated(false));
+    favorites.forEach(favorite -> favorite.setActivated(false));
+    hashtags.forEach(hashtag -> hashtag.setActivated(false));
+
+
+    post.setActivated(false);
+  }
+
+  @Transactional
+  public List<BoardListResponse> RecommendPosts(Long postId, Optional member) {
+
+    Post post = postRepository.findById(postId)
+        .orElseThrow(()-> new NotFoundException("해당 글이 존재하지 않습니다."));
+
+    List<Post> posts = postRepository.findAllByRecommendPost(postId, post.getHashtagList(), 6);
+
+    return toBoardListResponse(posts, member);
 
   }
 }
