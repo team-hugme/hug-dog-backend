@@ -9,14 +9,17 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import spring.hugme.domain.community.dto.response.BoardListResponse;
 import spring.hugme.domain.mypage.dto.MyCommentViewResponse;
+import spring.hugme.domain.mypage.dto.MyDogCreateRequest;
 import spring.hugme.domain.mypage.dto.MyDogListResponse;
 import spring.hugme.domain.mypage.dto.MyInfoModifyRequest;
 import spring.hugme.domain.mypage.dto.MyInfoResponse;
+import spring.hugme.domain.mypage.dto.MydogCreateResponse;
 import spring.hugme.domain.mypage.service.MypageDogService;
 import spring.hugme.domain.mypage.service.MypageService;
 import spring.hugme.global.controller.BaseController;
@@ -107,6 +110,8 @@ public class MypageController {
         response
     );
   }
+
+
   //반려견 목록
   @GetMapping("/dogs")
   public CommonApiResponse<List<MyDogListResponse>> myDogList(@AuthenticationPrincipal String userId){
@@ -120,4 +125,46 @@ public class MypageController {
     );
   }
 
+  //반려견 생성하기
+  @PostMapping("/dogs")
+  public CommonApiResponse<MydogCreateResponse> myDogCreate(@RequestBody MyDogCreateRequest request, @AuthenticationPrincipal String userId) {
+
+    Long dogId = mypageDogService.myDogCreate(userId, request);
+
+    MydogCreateResponse response = MydogCreateResponse.builder()
+        .dogId(dogId)
+        .build();
+    return CommonApiResponse.success(
+        ResponseCode.CREATED,
+        "정상적으로 강아지가 등록되었습니다",
+        response
+    );
+  }
+
+  //반려견 수정하기
+  @PatchMapping("/dogs/{dogId}")
+  public CommonApiResponse<ResponseCode> myDogModify(@RequestBody MyDogCreateRequest request, @PathVariable Long dogId) {
+
+     mypageDogService.myDogModify(dogId, request);
+
+    return CommonApiResponse.success(
+        ResponseCode.OK,
+        "정상적으로 강아지가 수정되었습니다.",
+        ResponseCode.NO_CONTENT
+
+    );
+  }
+  //반려견 삭제하기
+  @DeleteMapping("/dogs/{dogId}")
+  public CommonApiResponse<ResponseCode> myDogDelete(@PathVariable Long dogId) {
+
+    mypageDogService.myDogDelete(dogId);
+
+    return CommonApiResponse.success(
+        ResponseCode.OK,
+        "정상적으로 강아지가 삭제되었습니다.",
+        ResponseCode.NO_CONTENT
+
+    );
+  }
   }
