@@ -56,7 +56,7 @@ public class ReactionService {
   @Transactional
   public CommentWriteResponse CommentWrite(CommentWriteRequest commentRequest, Long postId, String userId) {
 
-    Member member = memberRepository.findByUserId(userId)
+    Member member = memberRepository.findUserId(userId)
         .orElseThrow(() -> new NotFoundException("해당 엔티티가 존재하지 않습니다"));
 
     Post post = postRepository.findById(postId)
@@ -88,7 +88,7 @@ public class ReactionService {
   @Transactional
   public void helpfullAdd(Long postId, String userId) {
 
-    Member member = memberRepository.findByUserId(userId)
+    Member member = memberRepository.findUserId(userId)
         .orElseThrow(() -> new NotFoundException("해당 유저는 존재하지 않습니다"));
 
     Post post = postRepository.findById(postId)
@@ -117,7 +117,7 @@ public class ReactionService {
   public void helpfullDelete(Long postId, String userId) {
 
 
-    Member member = memberRepository.findByUserId(userId)
+    Member member = memberRepository.findUserId(userId)
         .orElseThrow(() -> new NotFoundException("해당 유저는 존재하지 않습니다"));
 
     Post post = postRepository.findById(postId)
@@ -141,7 +141,7 @@ public class ReactionService {
     Comments comments = commentRepository.findById(commentId)
         .orElseThrow(()-> new NotFoundException("해당 댓글이 존재하지 않습니다"));
 
-    Member member = memberRepository.findByUserId(userId)
+    Member member = memberRepository.findUserId(userId)
         .orElseThrow(()-> new NotFoundException("로그인된 사용자는 존재하지 않습니다"));
 
     if(member != comments.getMember()){

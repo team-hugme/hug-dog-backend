@@ -54,7 +54,7 @@ public class communityController {
     if (principal != null && !principal.getName().equals("anonymousUser")) {
 
       String userId = principal.getName();
-      currentUserMember = memberRepository.findByUserId(userId);
+      currentUserMember = memberRepository.findUserId(userId);
     }
 
     if (type != null) {
@@ -85,7 +85,7 @@ public class communityController {
     if (principal != null && !principal.getName().equals("anonymousUser")) {
 
       String userId = principal.getName();
-      currentUserMember = memberRepository.findByUserId(userId);
+      currentUserMember = memberRepository.findUserId(userId);
     }
 
     PostDetailResponse postDetailInfo = communityService.PostDetailView(postId, currentUserMember);
@@ -164,7 +164,7 @@ public class communityController {
     if (principal != null && !principal.getName().equals("anonymousUser")) {
 
       String userId = principal.getName();
-      currentUserMember = memberRepository.findByUserId(userId);
+      currentUserMember = memberRepository.findUserId(userId);
     }
 
     List<BoardListResponse> responses = communityService.RecommendPosts(postId, currentUserMember);
