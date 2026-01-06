@@ -23,5 +23,5 @@ public class ChatBotDogListResponse {
 
   String createdAt;
 
-  String rainbowFeature;
+  Boolean rainbowFeature;
 }

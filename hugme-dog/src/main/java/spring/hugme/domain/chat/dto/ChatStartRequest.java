@@ -10,8 +10,6 @@ public class ChatStartRequest {
 
   Long chatBotId;
 
-  // 무지개 다리 건넜는지?
-  boolean rainbowTrue;
 
   //보호자 성별
   String gender;

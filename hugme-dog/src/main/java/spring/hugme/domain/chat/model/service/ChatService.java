@@ -52,7 +52,7 @@ public class ChatService {
 
     String RainbowTrue;
 
-    if(request.isRainbowTrue()){
+    if(dog.getIsRainbow()){
       RainbowTrue = "무지개 다리를 건너 천국에 있는";
     }else{
       RainbowTrue = "현재 살아서 주인 옆에 있는";
@@ -186,6 +186,7 @@ public class ChatService {
                   .dogName(chatBot.getDog().getDogName())
                   .dogImageURl(chatBot.getDog().getImageURL())
                   .createdAt(createdAt)
+                   .rainbowFeature(chatBot.getDog().getIsRainbow())
                   .build();
 
             }
