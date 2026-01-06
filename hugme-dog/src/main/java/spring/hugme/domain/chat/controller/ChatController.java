@@ -27,7 +27,7 @@ import spring.hugme.global.response.ResponseCode;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = BaseController.API_V1 + "/community/posts", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = BaseController.API_V1, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ChatController {
 
   private final ChatService chatService;
