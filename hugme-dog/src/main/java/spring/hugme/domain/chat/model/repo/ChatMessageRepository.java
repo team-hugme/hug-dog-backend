@@ -1,6 +1,7 @@
 package spring.hugme.domain.chat.model.repo;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import spring.hugme.domain.chat.entity.ChatBot;
@@ -13,4 +14,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 
 
   List<ChatMessage> findByMemberAndChatBotOrderByCreatedAtAsc(Member member, ChatBot chatBot);
+
+  Optional<List<ChatMessage>> findByChatBot(ChatBot chatBot);
 }
