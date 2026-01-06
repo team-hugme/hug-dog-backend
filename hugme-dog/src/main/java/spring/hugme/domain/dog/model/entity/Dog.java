@@ -55,6 +55,8 @@ public class Dog extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private DogSize dogSize;
 
+  private float weight;
+
 
   public int getAge() {
     if (this.birth == null) {
