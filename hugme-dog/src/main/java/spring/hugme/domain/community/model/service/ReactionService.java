@@ -41,7 +41,7 @@ public class ReactionService {
         .map( comment ->
             CommentListResponse.builder()
                 .commentId(comment.getCommentId())
-                .userId(comment.getMember().getId())
+                .userId(comment.getMember().getUserId())
                 .name(comment.getMember().getName())
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())

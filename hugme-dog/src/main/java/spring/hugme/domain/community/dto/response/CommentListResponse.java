@@ -11,7 +11,7 @@ public class CommentListResponse {
 
   Long commentId;
 
-  UUID userId;
+  String userId;
 
   String name;
 

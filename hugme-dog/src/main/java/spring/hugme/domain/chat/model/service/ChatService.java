@@ -59,7 +59,7 @@ public class ChatService {
     }
 
 
-    String assistantMessage = dogBot.chat(request.getChatBotId(), String.valueOf(dog.getDogId()),dog.getDogName(), member.getName(), chatBot.getDogFeature(), dog.getAge(), dog.getBreed(), RainbowTrue, request.getGender(), today,request.getUserMessage());
+    String assistantMessage = dogBot. chat(request.getChatBotId(), String.valueOf(dog.getDogId()),dog.getDogName(), member.getName(), chatBot.getDogFeature(), dog.getAge(), dog.getBreed(), RainbowTrue, request.getGender(), today,request.getUserMessage());
 
     ChatMessage humanMessage = ChatMessage.builder()
         .member(member)
