@@ -1,36 +1,20 @@
 package spring.hugme.domain.mypage.dto;
 
 import java.time.LocalDate;
-import lombok.Builder;
 import lombok.Data;
 import spring.hugme.global.code.DogGender;
 import spring.hugme.global.code.DogSize;
 
 @Data
-@Builder
-public class MyDogListResponse {
-
-  private String userId;
-
-  private Long dogId;
-
-  private String name;
-
-  private LocalDate birthday;
-
-  private String breed;
-
+public class MyDogCreateRequest {
+  private String dogName;
   private DogGender gender;
-
   private Boolean isNeutered;
-
+  private String breed;
+  private LocalDate birth;
+  private Boolean disease;
+  private String imageURL;
   private DogSize dogSize;
-
   private float weight;
-
   private Boolean isRainbow;
-
-  private Boolean chatStatus;
-
-
 }
