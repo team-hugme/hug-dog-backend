@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import spring.hugme.domain.user.entity.Member;
 import spring.hugme.global.code.DogGender;
 import spring.hugme.global.code.DogSize;
@@ -26,6 +27,7 @@ import spring.hugme.infra.entity.BaseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Setter
 public class Dog extends BaseEntity {
 
   @Id
@@ -42,18 +44,22 @@ public class Dog extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private DogGender gender;
 
-  private boolean isNeuered;
+  private Boolean isNeutered;
 
   private String breed;
 
-  private LocalDateTime birth;
+  private LocalDate birth;
 
-  private boolean disease;
+  private Boolean disease;
 
   private String imageURL;
 
   @Enumerated(EnumType.STRING)
   private DogSize dogSize;
+
+  private float weight;
+
+  private Boolean isRainbow;
 
 
   public int getAge() {
@@ -61,7 +67,7 @@ public class Dog extends BaseEntity {
       return 0;
     }
 
-    LocalDate birthDate = this.birth.toLocalDate();
+    LocalDate birthDate = this.birth;
     LocalDate currentDate = LocalDate.now();
 
     return Period.between(birthDate, currentDate).getYears();

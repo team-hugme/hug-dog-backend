@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import spring.hugme.domain.community.entity.Post;
 import spring.hugme.domain.community.entity.Comments;
 import spring.hugme.domain.community.entity.QComments;
+import spring.hugme.domain.community.entity.QPost;
+import spring.hugme.domain.user.entity.Member;
 import spring.hugme.domain.user.entity.QMember;
 
 @RequiredArgsConstructor
@@ -26,6 +28,20 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom{
             .and(c.activated.eq(true)))
         .fetch();
 
+
+  }
+
+  @Override
+  public List<Comments> findByMember(Member member) {
+    QComments c = QComments.comments;
+    QPost p = QPost.post;
+
+    return queryFactory
+        .selectFrom(c)
+        .join(c.post, p).fetchJoin()
+        .where(c.member.eq(member)
+            .and(c.activated.eq(true)))
+        .fetch();
 
   }
 }

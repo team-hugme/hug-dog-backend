@@ -14,6 +14,7 @@ import spring.hugme.domain.community.entity.QComments;
 import spring.hugme.domain.community.entity.QFavorite;
 import spring.hugme.domain.community.entity.QPost;
 import spring.hugme.domain.community.entity.QPostHashtag;
+import spring.hugme.domain.user.entity.Member;
 
 
 @RequiredArgsConstructor
@@ -119,4 +120,18 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
         .limit(i)
         .fetch();
   }
+
+  @Override
+  public List<Post> findAllMemberWithAllRelations(Member member) {
+     QPost p = QPost.post;
+
+     return queryFactory.selectFrom(p)
+          .join(p.board).fetchJoin()
+          .leftJoin(p.hashtagList).fetchJoin()
+          .where(p.member.eq(member)
+              .and(p.activated.eq(true)))
+          .fetch();
+    }
+
 }
+

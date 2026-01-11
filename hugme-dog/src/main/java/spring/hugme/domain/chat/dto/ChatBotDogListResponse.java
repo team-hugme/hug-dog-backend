@@ -22,4 +22,6 @@ public class ChatBotDogListResponse {
   String dogImageURl;
 
   String createdAt;
+
+  Boolean rainbowFeature;
 }

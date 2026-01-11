@@ -69,7 +69,7 @@ ALTER TABLE dog MODIFY gender VARCHAR(20);
 -- 2. dog_size 컬럼도 문자로 변경
 ALTER TABLE dog MODIFY dog_size VARCHAR(20);
 
-INSERT INTO dog (user_id, dog_name, gender, is_neuered, breed, birth, disease, dog_size, created_at, modified_at, imageURL)
+INSERT INTO dog (user_id, dog_name, gender, is_neuered, breed, birth, disease, dog_size, created_at, modified_at, image_url, weight, is_rainbow)
 VALUES
     -- 1. 첫 번째 회원 ('ajkd')의 강아지 : 뽀삐 (소형견, 말티푸)
     (
@@ -83,7 +83,9 @@ VALUES
         'SMALL',
         NOW(),
         NOW(),
-        'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1764656860/%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C_modrhq.jpg'
+        'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1764656860/%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C_modrhq.jpg',
+        4.12,
+        true
     ),
 
     -- 2. 두 번째 회원 ('user1')의 강아지 : 초코 (중형견, 푸들)
@@ -98,7 +100,9 @@ VALUES
         'MEDIUM',
         NOW(),
         NOW(),
-        'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1764656860/%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C_modrhq.jpg'
+        'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1764656860/%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C_modrhq.jpg',
+        3.12,
+        true
     ),
 
     -- 3. 세 번째 회원 ('user2')의 강아지 : 맥스 (대형견, 리트리버)
@@ -113,5 +117,7 @@ VALUES
         'LARGE',
         NOW(),
         NOW(),
-        'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1764656860/%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C_modrhq.jpg'
+        'https://res.cloudinary.com/dyz2lq1f0/image/upload/v1764656860/%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C_modrhq.jpg',
+        5.1,
+        false
     );
