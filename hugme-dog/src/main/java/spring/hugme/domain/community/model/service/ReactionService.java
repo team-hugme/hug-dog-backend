@@ -57,7 +57,7 @@ public class ReactionService {
   public CommentWriteResponse CommentWrite(CommentWriteRequest commentRequest, Long postId, String userId) {
 
     Member member = memberRepository.findUserId(userId)
-        .orElseThrow(() -> new NotFoundException("해당 엔티티가 존재하지 않습니다"));
+        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다"));
 
     Post post = postRepository.findById(postId)
         .orElseThrow(() -> new NotFoundException("해당 게시물이 존재하지 않습니다"));

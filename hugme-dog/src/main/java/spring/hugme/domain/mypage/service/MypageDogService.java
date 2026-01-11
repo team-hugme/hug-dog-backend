@@ -90,7 +90,7 @@ public class MypageDogService {
   public void myDogModify(Long dogId, MyDogCreateRequest request) {
 
     Dog dog = dogRepository.findById(dogId)
-        .orElseThrow(() -> new NotFoundException("헤당 강아지가 존재하지 않습니다"));
+        .orElseThrow(() -> new NotFoundException("해당 강아지가 존재하지 않습니다"));
 
     dog.setDogName(request.getDogName());
     dog.setGender(request.getGender());
@@ -110,7 +110,7 @@ public class MypageDogService {
   public void myDogDelete(Long dogId) {
 
     Dog dog = dogRepository.findById(dogId)
-        .orElseThrow(() -> new NotFoundException("헤당 강아지가 존재하지 않습니다"));
+        .orElseThrow(() -> new NotFoundException("해당 강아지가 존재하지 않습니다"));
 
     ChatBot chatBot = chatBotRepository.findByDog(dog);
 
