@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import spring.hugme.domain.community.dto.PostListProjection;
 import spring.hugme.domain.community.dto.TagInfo;
@@ -18,11 +19,15 @@ import spring.hugme.domain.community.model.repo.FavoriteRepository;
 import spring.hugme.domain.community.model.repo.PostImageRepository;
 import spring.hugme.domain.community.model.repo.PostRepository;
 import spring.hugme.domain.mypage.dto.MyCommentViewResponse;
+import spring.hugme.domain.mypage.dto.MyInfoImageRequest;
 import spring.hugme.domain.mypage.dto.MyInfoModifyRequest;
 import spring.hugme.domain.mypage.dto.MyInfoResponse;
+import spring.hugme.domain.mypage.dto.MypagePasswordRequest;
 import spring.hugme.domain.user.entity.Member;
 import spring.hugme.domain.user.repository.UserRepository;
+import spring.hugme.global.error.exceptions.AuthApiException;
 import spring.hugme.global.error.exceptions.NotFoundException;
+import spring.hugme.global.response.ResponseCode;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +38,8 @@ public class MypageService {
   private final PostImageRepository postImageRepository;
   private final FavoriteRepository favoriteRepository;
   private final CommentRepository commentRepository;
+  private final PasswordEncoder passwordEncoder;
+
 
 
   public List<BoardListResponse> PostList(Member member, List<Post> posts){
@@ -145,23 +152,23 @@ public class MypageService {
 
     return comments.stream()
         .map( comment -> {
-          PostListProjection counts = postRepository.findCountsByPostId(comment.getPost().getPostId());
+              PostListProjection counts = postRepository.findCountsByPostId(comment.getPost().getPostId());
 
-          return MyCommentViewResponse.builder()
-              .postId(comment.getPost().getPostId())
-              .title(comment.getPost().getTitle())
-              .comment(comment.getContent())
-              .commentCount(counts.getCommentCount())
-              .LikeCount(counts.getLikeCount())
-              .postCreatedAt(comment.getPost().getCreatedAt())
-              .commentCreatedAt(comment.getCreatedAt())
-              .postModifyAt(comment.getPost().getModifiedAt())
-              .commentModifyAt(comment.getModifiedAt())
-              .build();
+              return MyCommentViewResponse.builder()
+                  .postId(comment.getPost().getPostId())
+                  .title(comment.getPost().getTitle())
+                  .comment(comment.getContent())
+                  .commentCount(counts.getCommentCount())
+                  .LikeCount(counts.getLikeCount())
+                  .postCreatedAt(comment.getPost().getCreatedAt())
+                  .commentCreatedAt(comment.getCreatedAt())
+                  .postModifyAt(comment.getPost().getModifiedAt())
+                  .commentModifyAt(comment.getModifiedAt())
+                  .build();
 
 
             }
-            ).toList();
+        ).toList();
   }
 
   @Transactional
@@ -175,5 +182,37 @@ public class MypageService {
     }
 
     return PostList(member, posts);
+  }
+
+  @Transactional
+  public void myInfoImageModify(MyInfoImageRequest request, String userId) {
+
+    Member member = userRepository.findUserId(userId)
+        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다"));
+
+    member.setProfileUrl(request.getImageURL());
+
+  }
+
+  @Transactional
+  public void myInfoPasswordModify(MypagePasswordRequest request, String userId) {
+
+    Member member = userRepository.findUserId(userId)
+        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다"));
+
+    String encodePW = passwordEncoder.encode(request.getPassword());
+
+    member.setPassword(encodePW);
+  }
+
+  public void myPasswordCheck(MypagePasswordRequest request, String userId) {
+
+    Member member = userRepository.findUserId(userId)
+        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다"));
+
+    if(!passwordEncoder.matches(request.getPassword(), member.getPassword())){
+
+      throw new AuthApiException(ResponseCode.BAD_REQUEST);
+    }
   }
 }
