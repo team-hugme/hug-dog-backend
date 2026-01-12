@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import spring.hugme.domain.mypage.dto.MyInfoImageRequest;
 import spring.hugme.domain.community.dto.response.BoardListResponse;
 import spring.hugme.domain.mypage.dto.MyCommentViewResponse;
 import spring.hugme.domain.mypage.dto.MyDogCreateRequest;
@@ -20,6 +21,7 @@ import spring.hugme.domain.mypage.dto.MyDogListResponse;
 import spring.hugme.domain.mypage.dto.MyInfoModifyRequest;
 import spring.hugme.domain.mypage.dto.MyInfoResponse;
 import spring.hugme.domain.mypage.dto.MydogCreateResponse;
+import spring.hugme.domain.mypage.dto.MypagePasswordRequest;
 import spring.hugme.domain.mypage.service.MypageDogService;
 import spring.hugme.domain.mypage.service.MypageService;
 import spring.hugme.global.controller.BaseController;
@@ -145,7 +147,7 @@ public class MypageController {
   @PatchMapping("/dogs/{dogId}")
   public CommonApiResponse<ResponseCode> myDogModify(@RequestBody MyDogCreateRequest request, @PathVariable Long dogId) {
 
-     mypageDogService.myDogModify(dogId, request);
+    mypageDogService.myDogModify(dogId, request);
 
     return CommonApiResponse.success(
         ResponseCode.OK,
@@ -167,4 +169,41 @@ public class MypageController {
 
     );
   }
+
+  //내 비밀번호 수정
+  @PatchMapping("/password")
+  public CommonApiResponse<ResponseCode> myPasswordModify(@RequestBody MypagePasswordRequest request, @AuthenticationPrincipal String userId){
+
+    mypageService.myInfoPasswordModify(request, userId);
+
+    return CommonApiResponse.success(
+        ResponseCode.OK,
+        "정상적으로 회원의 비밀번호가 수정되었습니다.",
+        ResponseCode.NO_CONTENT
+    );
   }
+
+  @GetMapping("/password")
+  public CommonApiResponse<ResponseCode> myPasswordCheck(@RequestBody MypagePasswordRequest request, @AuthenticationPrincipal String userId){
+    mypageService.myPasswordCheck(request, userId);
+
+    return CommonApiResponse.success(
+        ResponseCode.OK,
+        "회원의 비밀번호와 입력하신 비밀번호가 일치합니다.",
+        ResponseCode.NO_CONTENT
+    );
+  }
+
+  //프로필 사진 변경
+  @PatchMapping("/image/profile")
+  public CommonApiResponse<ResponseCode> myInfoProfileImage(@RequestBody MyInfoImageRequest request, @AuthenticationPrincipal String userId){
+
+    mypageService.myInfoImageModify(request, userId);
+
+    return CommonApiResponse.success(
+        ResponseCode.OK,
+        "정상적으로 이미지가 수정되었습니다.",
+        ResponseCode.NO_CONTENT
+    );
+  }
+}
