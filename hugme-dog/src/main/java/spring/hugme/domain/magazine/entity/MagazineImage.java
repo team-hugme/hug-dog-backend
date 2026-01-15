@@ -11,17 +11,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import spring.hugme.infra.entity.BaseEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MagazineImage {
+public class MagazineImage extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int imageId;
+  private Long imageId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "magazine_id")
