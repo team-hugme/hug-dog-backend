@@ -1,6 +1,5 @@
 package spring.hugme.domain.magazine.entity;
 
-import io.swagger.v3.core.util.Json;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -12,17 +11,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import spring.hugme.infra.entity.BaseEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Magazine {
+public class Magazine extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int magazineId;
+  private Long magazineId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "resource_id")
